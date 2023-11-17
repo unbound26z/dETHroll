@@ -5,5 +5,5 @@ export class CreateUserDto {
   walletAddress: string;
 
   @IsString()
-  discordSnowflake: string;
+  discordId: string;
 }

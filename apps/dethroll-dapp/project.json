@@ -1,7 +1,7 @@
 {
-  "name": "d-ethroll-dapp",
+  "name": "dethroll-dapp",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "apps/d-ethroll-dapp",
+  "sourceRoot": "apps/dethroll-dapp",
   "projectType": "application",
   "targets": {
     "build": {
@@ -9,11 +9,11 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/apps/d-ethroll-dapp"
+        "outputPath": "dist/apps/dethroll-dapp"
       },
       "configurations": {
         "development": {
-          "outputPath": "apps/d-ethroll-dapp"
+          "outputPath": "apps/dethroll-dapp"
         },
         "production": {}
       }
@@ -22,16 +22,16 @@
       "executor": "@nx/next:server",
       "defaultConfiguration": "development",
       "options": {
-        "buildTarget": "d-ethroll-dapp:build",
+        "buildTarget": "dethroll-dapp:build",
         "dev": true
       },
       "configurations": {
         "development": {
-          "buildTarget": "d-ethroll-dapp:build:development",
+          "buildTarget": "dethroll-dapp:build:development",
           "dev": true
         },
         "production": {
-          "buildTarget": "d-ethroll-dapp:build:production",
+          "buildTarget": "dethroll-dapp:build:production",
           "dev": false
         }
       }
@@ -39,21 +39,21 @@
     "export": {
       "executor": "@nx/next:export",
       "options": {
-        "buildTarget": "d-ethroll-dapp:build:production"
+        "buildTarget": "dethroll-dapp:build:production"
       }
     },
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "apps/d-ethroll-dapp/jest.config.ts"
+        "jestConfig": "apps/dethroll-dapp/jest.config.ts"
       }
     },
     "lint": {
       "executor": "@nx/eslint:lint",
       "outputs": ["{options.outputFile}"],
       "options": {
-        "lintFilePatterns": ["apps/d-ethroll-dapp/**/*.{ts,tsx,js,jsx}"]
+        "lintFilePatterns": ["apps/dethroll-dapp/**/*.{ts,tsx,js,jsx}"]
       }
     }
   },

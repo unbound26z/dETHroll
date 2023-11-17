@@ -25,12 +25,12 @@ export class UserService {
       }
 
       const snowflakeExists = await this.userRepository.getUserByDiscordId(
-        createUserDto.discordSnowflake
+        createUserDto.discordId
       );
 
       if (!snowflakeExists) {
         throw new Error(
-          `User with discord snowflake ${createUserDto.discordSnowflake} already exists`
+          `User with discord snowflake ${createUserDto.discordId} already exists`
         );
       }
 
@@ -39,7 +39,7 @@ export class UserService {
       const newUser: User = {
         createdAt: new Date(),
         updatedAt: new Date(),
-        discordSnowflake: createUserDto.discordSnowflake,
+        discordId: createUserDto.discordId,
         walletAddress: createUserDto.walletAddress,
         signerWalletPubkey: pubkey,
         signerWalletPrivateKey: privateKey,
@@ -59,7 +59,7 @@ export class UserService {
     await this.userRepository.getUserByWallet(walletAddress);
   }
 
-  async getUserByDiscordId(discordSnowflake: string) {
-    await this.userRepository.getUserByDiscordId(discordSnowflake);
+  async getUserByDiscordId(discordId: string) {
+    await this.userRepository.getUserByDiscordId(discordId);
   }
 }

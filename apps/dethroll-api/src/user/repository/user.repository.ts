@@ -1,8 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../entities/user.entity';
-import { plainToInstance } from 'class-transformer';
-import { CreateUserDto } from '../dto/user.dto';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -22,7 +20,7 @@ export class UserRepository extends Repository<User> {
     return this.findOne({ where: { walletAddress } });
   }
 
-  async getUserByDiscordId(discordSnowflake: string) {
-    return this.findOne({ where: { discordSnowflake } });
+  async getUserByDiscordId(discordId: string) {
+    return this.findOne({ where: { discordId } });
   }
 }

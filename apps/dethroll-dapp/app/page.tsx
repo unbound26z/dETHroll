@@ -1,6 +1,16 @@
+'use client';
+import { useCallback } from 'react';
 import styles from './page.module.css';
+import axios from 'axios';
 
 export default async function Index() {
+  const getDiscordOauthLink = useCallback(async () => {
+    const {
+      data: { uri },
+    } = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/discord/link`);
+
+    window.open(uri, '_blank');
+  }, []);
   /*
    * Replace the elements below with your own.
    *
@@ -16,6 +26,7 @@ export default async function Index() {
               Welcome d-ethroll-dapp 👋
             </h1>
           </div>
+          <button onClick={getDiscordOauthLink}>LINK DISCORD</button>
 
           <div id="hero" className="rounded">
             <div className="text-container">

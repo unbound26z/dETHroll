@@ -12,7 +12,7 @@ export class User {
   walletAddress: string;
 
   @PrimaryColumn()
-  discordSnowflake: string;
+  discordId: string;
 
   @Column()
   signerWalletPubkey: string;
