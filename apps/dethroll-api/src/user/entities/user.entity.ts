@@ -1,4 +1,5 @@
 import {
+  Column,
   CreateDateColumn,
   Entity,
   PrimaryColumn,
@@ -12,6 +13,12 @@ export class User {
 
   @PrimaryColumn()
   discordSnowflake: string;
+
+  @Column()
+  signerWalletPubkey: string;
+
+  @Column()
+  signerWalletPrivateKey: string;
 
   @CreateDateColumn()
   createdAt: Date;

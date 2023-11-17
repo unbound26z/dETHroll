@@ -24,6 +24,10 @@ export class DiscordService implements OnModuleInit {
         this.logger.log(`Logged in as ${client.user!.username}!`);
       });
 
+      client.on(Events.ThreadCreate, () => {
+        // Put logic based on events here
+      });
+
       client.login('TOKEN OVDE TODO');
     } catch (error: any) {
       this.logger.error(error.message);
