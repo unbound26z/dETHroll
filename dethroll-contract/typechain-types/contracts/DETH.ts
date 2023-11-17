@@ -75,6 +75,7 @@ export interface DETHInterface extends Interface {
       | "roll"
       | "setParameters"
       | "sponsorWallet"
+      | "terminatePendingGame"
       | "transferOwnership"
       | "verifyMessage"
   ): FunctionFragment;
@@ -140,6 +141,10 @@ export interface DETHInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
+    functionFragment: "terminatePendingGame",
+    values: [BytesLike, BigNumberish, BytesLike, BytesLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [AddressLike]
   ): string;
@@ -189,6 +194,10 @@ export interface DETHInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "sponsorWallet",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "terminatePendingGame",
     data: BytesLike
   ): Result;
   decodeFunctionResult(
@@ -347,6 +356,12 @@ export interface DETH extends BaseContract {
 
   sponsorWallet: TypedContractMethod<[], [string], "view">;
 
+  terminatePendingGame: TypedContractMethod<
+    [_hashedMessage: BytesLike, _v: BigNumberish, _r: BytesLike, _s: BytesLike],
+    [void],
+    "nonpayable"
+  >;
+
   transferOwnership: TypedContractMethod<
     [newOwner: AddressLike],
     [void],
@@ -465,6 +480,13 @@ export interface DETH extends BaseContract {
   getFunction(
     nameOrSignature: "sponsorWallet"
   ): TypedContractMethod<[], [string], "view">;
+  getFunction(
+    nameOrSignature: "terminatePendingGame"
+  ): TypedContractMethod<
+    [_hashedMessage: BytesLike, _v: BigNumberish, _r: BytesLike, _s: BytesLike],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
