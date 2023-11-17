@@ -6,4 +6,10 @@ export class CreateUserDto {
 
   @IsString()
   discordId: string;
+
+  @IsString()
+  discordUsername: string;
+
+  @IsString()
+  discordImage: string;
 }

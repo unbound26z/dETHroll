@@ -18,7 +18,7 @@ export class UserService {
         createUserDto.walletAddress
       );
 
-      if (!walletExists) {
+      if (walletExists) {
         throw new Error(
           `User with wallet address ${createUserDto.walletAddress} already exists`
         );
@@ -28,7 +28,7 @@ export class UserService {
         createUserDto.discordId
       );
 
-      if (!snowflakeExists) {
+      if (snowflakeExists) {
         throw new Error(
           `User with discord snowflake ${createUserDto.discordId} already exists`
         );
@@ -43,6 +43,8 @@ export class UserService {
         walletAddress: createUserDto.walletAddress,
         signerWalletPubkey: pubkey,
         signerWalletPrivateKey: privateKey,
+        discordImage: createUserDto.discordImage,
+        discordUsername: createUserDto.discordUsername,
       };
 
       await this.userRepository.saveUser(newUser);

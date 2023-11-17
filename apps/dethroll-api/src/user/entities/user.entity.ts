@@ -15,6 +15,12 @@ export class User {
   discordId: string;
 
   @Column()
+  discordUsername: string;
+
+  @Column()
+  discordImage: string;
+
+  @Column()
   signerWalletPubkey: string;
 
   @Column()

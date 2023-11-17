@@ -4,19 +4,27 @@ import {
   Logger,
   OnModuleInit,
 } from '@nestjs/common';
-import { Client, Events, GatewayIntentBits, Partials } from 'discord.js';
+import { Client, Events, Partials, REST } from 'discord.js';
 import axios from 'axios';
+import { CreateUserDto } from '../user/dto/user.dto';
+import { generateDiscordPfPUrl } from '../utils/helpers';
+import { ConfigService } from '@nestjs/config';
+import { UserService } from '../user/user.service';
 @Injectable()
 export class DiscordService implements OnModuleInit {
   client: Client;
+  rest: REST;
   private readonly logger = new Logger(DiscordService.name);
 
-  constructor() {
+  constructor(
+    private configService: ConfigService,
+    private userService: UserService
+  ) {
     this.client = new Client({
-      // TODO add proper intents and partials
       intents: [],
       partials: [Partials.GuildMember],
     });
+    this.rest = new REST();
   }
 
   onModuleInit() {
@@ -27,27 +35,25 @@ export class DiscordService implements OnModuleInit {
 
       this.client.on(Events.ThreadCreate, () => {});
 
-      this.client.login(
-        'MTE3NTEzOTM5MTU2MDI0MTI1Mg.G3iL75.A25LgsL7f0tJIA6P6TPlUy-uLaTrtn-Eyvdixo'
-      );
+      this.client.login(this.configService.get('DISCORD_TOKEN'));
     } catch (error: any) {
       this.logger.error(error.message);
     }
   }
 
-  oAuthDiscordAccount() {
+  oAuthDiscordAccount(wallet: string) {
     return {
-      uri: 'https://discord.com/api/oauth2/authorize?client_id=1175139391560241252&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fdiscord%2Fauth&response_type=code&scope=identify',
+      uri: this.configService.get('DISCORD_REDIRECT_URI') + wallet,
     };
   }
 
-  async getUserData(code: string) {
+  async getUserData(code: string, wallet: string) {
     try {
       const { data } = await axios.post(
         'https://discord.com/api/oauth2/token',
         {
-          client_id: '1175139391560241252',
-          client_secret: 'a30m4Q2Ji903uHxomV7Wfx6CuApp6zNd',
+          client_id: this.configService.get('DISCORD_CLIENT_ID'),
+          client_secret: this.configService.get('DISCORD_SECRET_ID'),
           code,
           grant_type: 'authorization_code',
           redirect_uri: `http://localhost:${3000}/api/discord/auth`,
@@ -60,7 +66,7 @@ export class DiscordService implements OnModuleInit {
         }
       );
 
-      const { access_token, refresh_token, token_type } = data;
+      const { access_token, token_type } = data;
       const { data: userData } = await axios.get(
         'https://discord.com/api/users/@me',
         {
@@ -70,9 +76,14 @@ export class DiscordService implements OnModuleInit {
         }
       );
 
-      const uri = `https://cdn.discordapp.com/avatars/${userData.id}/${userData.avatar}.png`;
-      console.log(uri);
-      console.log(userData, 'UDATA');
+      const createUsreDto: CreateUserDto = {
+        discordId: userData.id,
+        discordImage: generateDiscordPfPUrl(userData.id, userData.avatar),
+        discordUsername: userData.username,
+        walletAddress: wallet,
+      };
+
+      await this.userService.createUser(createUsreDto);
     } catch (error) {
       console.log(error);
       throw new BadRequestException(error);
