@@ -1,0 +1,57 @@
+{
+  "name": "dethroll-api",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/dethroll-api/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/apps/dethroll-api",
+        "main": "apps/dethroll-api/src/main.ts",
+        "tsConfig": "apps/dethroll-api/tsconfig.app.json",
+        "assets": ["apps/dethroll-api/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "apps/dethroll-api/webpack.config.js"
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "dethroll-api:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "dethroll-api:build:development"
+        },
+        "production": {
+          "buildTarget": "dethroll-api:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/dethroll-api/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/dethroll-api/jest.config.ts"
+      }
+    }
+  },
+  "tags": []
+}
