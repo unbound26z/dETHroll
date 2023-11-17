@@ -9,17 +9,19 @@ import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 contract dETH is RrpRequesterV0, Ownable {
     struct Player {
         string discord;
-        address mainWallet;
+        address sigWallet;
     }
 
     address _owner;
 
-    mapping(address => Player[]) players;
+    mapping(address => Player) players;
 
     address public airnode;
     bytes32 public endpointIdUint256;
     address public sponsorWallet;
     uint256 public _qrngUint256;
+
+    uint256 lastRandomNumber;
 
     mapping(bytes32 => bool) public expectingRequestWithIdToBeFulfilled;
 
@@ -32,6 +34,8 @@ contract dETH is RrpRequesterV0, Ownable {
         uint256 lastRandomNumber;
         uint256 betAmount;
         bool lastPlayer1;
+        uint256 rollsCount;
+        address winner;
     }
 
     mapping(bytes32 => Game) games;
@@ -40,6 +44,22 @@ contract dETH is RrpRequesterV0, Ownable {
 
     constructor(address _airnodeRrp) RrpRequesterV0(_airnodeRrp) {
         _owner = msg.sender;
+    }
+
+    function register(
+        address _mainWallet,
+        string memory _discord,
+        address _sigWallet
+    ) public onlyOwner {
+        require(
+            players[_mainWallet].sigWallet == address(0),
+            'Player already registered'
+        );
+
+        players[_mainWallet] = Player({
+            discord: _discord,
+            sigWallet: _sigWallet
+        });
     }
 
     function setParameters(
@@ -68,14 +88,14 @@ contract dETH is RrpRequesterV0, Ownable {
     function fulfillUint256(
         bytes32 requestId,
         bytes calldata data
-    ) public onlyAirnodeRrp returns (uint256) {
+    ) public onlyAirnodeRrp {
         require(
             expectingRequestWithIdToBeFulfilled[requestId],
             'Request ID not known'
         );
         expectingRequestWithIdToBeFulfilled[requestId] = false;
         uint256 qrngUint256 = abi.decode(data, (uint256));
-        return qrngUint256;
+        lastRandomNumber = qrngUint256;
     }
 
     function depositErc20(address token, uint256 amount) public payable {
@@ -83,20 +103,18 @@ contract dETH is RrpRequesterV0, Ownable {
 
         tokenContract.transferFrom(msg.sender, address(this), amount);
 
-        uint256 currencyBalance = recalculateCurrencyAmount(amount);
+        uint256 currencyBalance = recalculateCurrencyAmount();
 
         balances[msg.sender] = balances[msg.sender] + currencyBalance;
     }
 
     receive() external payable {
-        uint256 currencyBalance = recalculateCurrencyAmount(msg.value);
+        uint256 currencyBalance = recalculateCurrencyAmount();
 
         balances[msg.sender] = balances[msg.sender] + currencyBalance;
     }
 
-    function recalculateCurrencyAmount(
-        uint256 _depositAmount
-    ) private pure returns (uint256) {
+    function recalculateCurrencyAmount() private pure returns (uint256) {
         //TODO: user oracle for fetching ETH/token prices
         return 10;
     }
@@ -179,7 +197,48 @@ contract dETH is RrpRequesterV0, Ownable {
                 startTimestamp: 0,
                 betAmount: 0,
                 lastPlayer1: false,
-                lastRandomNumber: 0
+                lastRandomNumber: 0,
+                rollsCount: 0,
+                winner: address(0)
             });
+    }
+
+    function roll(
+        bytes32 gameId,
+        bytes32 _hashedMessage,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) public {
+        address player = verifyMessage(_hashedMessage, _v, _r, _s);
+
+        Game memory game = games[gameId];
+
+        require(game.winner == address(0), 'Game already resolved');
+
+        require(
+            game.player1 != address(0) && game.player2 != address(0),
+            'Invalid game config!'
+        );
+
+        if (game.lastPlayer1) {
+            require(player == game.player2, "Can't roll twice in row");
+            games[gameId].lastPlayer1 = false;
+        } else {
+            require(player == game.player1, "Can't roll twice in row");
+            games[gameId].lastPlayer1 = true;
+        }
+        makeRequestUint256();
+
+        uint256 seed = game.lastRandomNumber == 0 ? 100 : game.lastRandomNumber;
+
+        uint256 randomNumber = (lastRandomNumber % seed) + 1;
+
+        games[gameId].lastRandomNumber = randomNumber;
+        games[gameId].rollsCount += 1;
+
+        if (randomNumber == 1) {
+            games[gameId].winner = player;
+        }
     }
 }

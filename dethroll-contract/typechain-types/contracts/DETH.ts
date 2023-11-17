@@ -31,6 +31,8 @@ export declare namespace DETH {
     lastRandomNumber: BigNumberish;
     betAmount: BigNumberish;
     lastPlayer1: boolean;
+    rollsCount: BigNumberish;
+    winner: AddressLike;
   };
 
   export type GameStructOutput = [
@@ -39,7 +41,9 @@ export declare namespace DETH {
     startTimestamp: bigint,
     lastRandomNumber: bigint,
     betAmount: bigint,
-    lastPlayer1: boolean
+    lastPlayer1: boolean,
+    rollsCount: bigint,
+    winner: string
   ] & {
     player1: string;
     player2: string;
@@ -47,6 +51,8 @@ export declare namespace DETH {
     lastRandomNumber: bigint;
     betAmount: bigint;
     lastPlayer1: boolean;
+    rollsCount: bigint;
+    winner: string;
   };
 }
 
@@ -64,7 +70,9 @@ export interface DETHInterface extends Interface {
       | "initGame"
       | "joinGame"
       | "owner"
+      | "register"
       | "renounceOwnership"
+      | "roll"
       | "setParameters"
       | "sponsorWallet"
       | "transferOwnership"
@@ -112,8 +120,16 @@ export interface DETHInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
+    functionFragment: "register",
+    values: [AddressLike, string, AddressLike]
+  ): string;
+  encodeFunctionData(
     functionFragment: "renounceOwnership",
     values?: undefined
+  ): string;
+  encodeFunctionData(
+    functionFragment: "roll",
+    values: [BytesLike, BytesLike, BigNumberish, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setParameters",
@@ -161,10 +177,12 @@ export interface DETHInterface extends Interface {
   decodeFunctionResult(functionFragment: "initGame", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "joinGame", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "owner", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "register", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "roll", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "setParameters",
     data: BytesLike
@@ -261,7 +279,7 @@ export interface DETH extends BaseContract {
 
   fulfillUint256: TypedContractMethod<
     [requestId: BytesLike, data: BytesLike],
-    [bigint],
+    [void],
     "nonpayable"
   >;
 
@@ -297,7 +315,25 @@ export interface DETH extends BaseContract {
 
   owner: TypedContractMethod<[], [string], "view">;
 
+  register: TypedContractMethod<
+    [_mainWallet: AddressLike, _discord: string, _sigWallet: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
+
+  roll: TypedContractMethod<
+    [
+      gameId: BytesLike,
+      _hashedMessage: BytesLike,
+      _v: BigNumberish,
+      _r: BytesLike,
+      _s: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
 
   setParameters: TypedContractMethod<
     [
@@ -353,7 +389,7 @@ export interface DETH extends BaseContract {
     nameOrSignature: "fulfillUint256"
   ): TypedContractMethod<
     [requestId: BytesLike, data: BytesLike],
-    [bigint],
+    [void],
     "nonpayable"
   >;
   getFunction(
@@ -393,8 +429,28 @@ export interface DETH extends BaseContract {
     nameOrSignature: "owner"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
+    nameOrSignature: "register"
+  ): TypedContractMethod<
+    [_mainWallet: AddressLike, _discord: string, _sigWallet: AddressLike],
+    [void],
+    "nonpayable"
+  >;
+  getFunction(
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
+  getFunction(
+    nameOrSignature: "roll"
+  ): TypedContractMethod<
+    [
+      gameId: BytesLike,
+      _hashedMessage: BytesLike,
+      _v: BigNumberish,
+      _r: BytesLike,
+      _s: BytesLike
+    ],
+    [void],
+    "nonpayable"
+  >;
   getFunction(
     nameOrSignature: "setParameters"
   ): TypedContractMethod<
