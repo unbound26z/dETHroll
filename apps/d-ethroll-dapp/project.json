@@ -1,0 +1,61 @@
+{
+  "name": "d-ethroll-dapp",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/d-ethroll-dapp",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/d-ethroll-dapp"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/d-ethroll-dapp"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "d-ethroll-dapp:build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "d-ethroll-dapp:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "d-ethroll-dapp:build:production",
+          "dev": false
+        }
+      }
+    },
+    "export": {
+      "executor": "@nx/next:export",
+      "options": {
+        "buildTarget": "d-ethroll-dapp:build:production"
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/d-ethroll-dapp/jest.config.ts"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["apps/d-ethroll-dapp/**/*.{ts,tsx,js,jsx}"]
+      }
+    }
+  },
+  "tags": []
+}
