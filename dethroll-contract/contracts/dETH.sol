@@ -14,6 +14,9 @@ contract dETH is RrpRequesterV0, Ownable {
 
     address _owner;
 
+    //One dETH will always be worth 9 USD
+    uint256 constant dETHPrice = 9;
+
     mapping(address => Player) players;
 
     address public airnode;
@@ -240,5 +243,23 @@ contract dETH is RrpRequesterV0, Ownable {
         if (randomNumber == 1) {
             games[gameId].winner = player;
         }
+    }
+
+    function terminatePendingGame(
+        bytes32 _hashedMessage,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) public {
+        address player = verifyMessage(_hashedMessage, _v, _r, _s);
+
+        Game memory pendingGame = pendingGames[player];
+
+        require(
+            pendingGame.player1 != address(0),
+            'Could not find pending game'
+        );
+
+        pendingGames[player] = getDefaultGame();
     }
 }
