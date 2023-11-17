@@ -23,7 +23,7 @@ contract dETH is RrpRequesterV0, Ownable {
 
     mapping(bytes32 => bool) public expectingRequestWithIdToBeFulfilled;
 
-    Game[] private pendingGames;
+    mapping(address => Game) pendingGames;
 
     struct Game {
         address player1;
@@ -34,7 +34,7 @@ contract dETH is RrpRequesterV0, Ownable {
         bool lastPlayer1;
     }
 
-    mapping(bytes => Game) games;
+    mapping(bytes32 => Game) games;
 
     mapping(address => uint256) balances;
 
@@ -109,28 +109,25 @@ contract dETH is RrpRequesterV0, Ownable {
         bytes32 _s
     ) public {
         address player1 = verifyMessage(_hashedMessage, _v, _r, _s);
-        for (uint256 i = 0; i < pendingGames.length; i++) {
-            Game memory pGame = pendingGames[i];
 
-            if (pGame.player1 == msg.sender) {
-                revert('You are already in penging game!');
-            }
-        }
+        Game memory defaultGame = getDefaultGame();
+        defaultGame.player1 = player1;
+        defaultGame.betAmount = _betAmount;
 
-        pendingGames.push(
-            Game({
-                player1: player1,
-                player2: address(0),
-                betAmount: _betAmount,
-                startTimestamp: block.timestamp,
-                lastRandomNumber: 0,
-                lastPlayer1: false
-            })
+        Game memory existingPendingGame = pendingGames[player1];
+
+        require(
+            existingPendingGame.player1 == address(0),
+            'You already have pending game!'
         );
+
+        pendingGames[player1] = defaultGame;
     }
 
-    function getPendingGames() public view returns (Game[] memory) {
-        return pendingGames;
+    function getMinePendingGame(
+        address player
+    ) public view returns (Game memory) {
+        return pendingGames[player];
     }
 
     function verifyMessage(
@@ -145,5 +142,44 @@ contract dETH is RrpRequesterV0, Ownable {
         );
         address signer = ecrecover(prefixedHashMessage, _v, _r, _s);
         return signer;
+    }
+
+    function joinGame(
+        address oponent,
+        bytes32 _hashedMessage,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) public {
+        address player2 = verifyMessage(_hashedMessage, _v, _r, _s);
+
+        Game memory pendingGame = pendingGames[oponent];
+
+        require(
+            pendingGame.player1 != address(0),
+            'Could not find pending game!'
+        );
+
+        bytes32 gameId = keccak256(
+            abi.encode(oponent, player2, block.timestamp)
+        );
+
+        pendingGame.player2 = player2;
+
+        pendingGames[oponent] = getDefaultGame();
+
+        games[gameId] = pendingGame;
+    }
+
+    function getDefaultGame() private pure returns (Game memory) {
+        return
+            Game({
+                player1: address(0),
+                player2: address(0),
+                startTimestamp: 0,
+                betAmount: 0,
+                lastPlayer1: false,
+                lastRandomNumber: 0
+            });
     }
 }
