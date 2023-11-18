@@ -39,8 +39,8 @@ export class GameService {
     }
   }
 
-  getGameForOponen(discordId: string) {
-    return this.gameRepo.findOne({
+  async getGameForOponen(discordId: string) {
+    return await this.gameRepo.findOne({
       where: { player1DiscordId: discordId, isPending: true },
     });
   }

@@ -28,12 +28,12 @@ export async function initGame(pk: string, betAmount: number) {
   await contract.initGame(BigInt(betAmount), signature, v, r, s);
 }
 
-export async function joinGame(pk: string, oponent: string) {
+export async function joinGame(pk: string, oponent: string, gameId: string) {
   const signer = getAsSigner(pk);
   const contract = getDETHContract();
 
   const { v, r, s, signature } = await signMessage(signer);
-  await contract.joinGame(oponent, signature, v, r, s);
+  await contract.joinGame(gameId, oponent, signature, v, r, s);
 }
 
 export async function roll(pk: string, gameId: string) {

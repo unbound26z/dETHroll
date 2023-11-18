@@ -1,5 +1,6 @@
 import {
   ContractTransaction,
+  ContractInterface,
   BytesLike as Arrayish,
   BigNumber,
   BigNumberish,
@@ -92,13 +93,13 @@ export interface GameCreatedEventEmittedResponse {
   player1: string;
 }
 export interface GameJoinEventEmittedResponse {
-  gameId: Arrayish;
+  gameId: string;
   amount: BigNumberish;
   player2: string;
   player1: string;
 }
 export interface GameWonEventEmittedResponse {
-  gameId: Arrayish;
+  gameId: string;
   winner: string;
   loser: string;
   wonAmount: BigNumberish;
@@ -108,7 +109,7 @@ export interface OwnershipTransferredEventEmittedResponse {
   newOwner: string;
 }
 export interface RollEventEmittedResponse {
-  gameId: Arrayish;
+  gameId: string;
   player: string;
   rolledNumber: BigNumberish;
 }
@@ -242,6 +243,7 @@ export interface DETHRoll {
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
+   * @param gameId Type: string, Indexed: false
    * @param oponent Type: address, Indexed: false
    * @param _hashedMessage Type: bytes32, Indexed: false
    * @param _v Type: uint8, Indexed: false
@@ -249,6 +251,7 @@ export interface DETHRoll {
    * @param _s Type: bytes32, Indexed: false
    */
   joinGame(
+    gameId: string,
     oponent: string,
     _hashedMessage: Arrayish,
     _v: BigNumberish,
@@ -292,14 +295,14 @@ export interface DETHRoll {
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
-   * @param gameId Type: bytes32, Indexed: false
+   * @param gameId Type: string, Indexed: false
    * @param _hashedMessage Type: bytes32, Indexed: false
    * @param _v Type: uint8, Indexed: false
    * @param _r Type: bytes32, Indexed: false
    * @param _s Type: bytes32, Indexed: false
    */
   roll(
-    gameId: Arrayish,
+    gameId: string,
     _hashedMessage: Arrayish,
     _v: BigNumberish,
     _r: Arrayish,

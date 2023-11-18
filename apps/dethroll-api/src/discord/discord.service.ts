@@ -264,16 +264,16 @@ export class DiscordService implements OnModuleInit {
     );
 
     if (!oponentData) throw new Error('Oponent discord data not found!');
-
-    await joinGame(
-      dbUser.signerWalletPrivateKey,
-      oponentData.signerWalletPubkey
-    );
-
     const game = await this.gameService.getGameForOponen(member.user.id);
 
     if (!game)
       throw new BadRequestException('Tagged user does not have created games!');
+
+    await joinGame(
+      game.gameId,
+      dbUser.signerWalletPrivateKey,
+      oponentData.signerWalletPubkey
+    );
 
     game.isPending = false;
     game.player2 = user.username;
