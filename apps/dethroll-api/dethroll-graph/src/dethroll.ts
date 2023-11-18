@@ -1,68 +1,64 @@
-import { BigInt } from "@graphprotocol/graph-ts"
+import { BigInt } from '@graphprotocol/graph-ts';
 import {
   dethroll,
   GameCreated,
   GameJoin,
   GameWon,
   OwnershipTransferred,
-  Roll
-} from "../generated/dethroll/dethroll"
-import { ExampleEntity } from "../generated/schema"
+  Roll,
+} from '../generated/dethroll/dethroll';
+import { Player } from '../generated/schema';
 
 export function handleGameCreated(event: GameCreated): void {
   // Entities can be loaded from the store using a string ID; this ID
   // needs to be unique across all entities of the same type
-  let entity = ExampleEntity.load(event.transaction.from)
+  let player = Player.load(event.params.player1);
 
   // Entities only exist after they have been saved to the store;
   // `null` checks allow to create entities on demand
-  if (!entity) {
-    entity = new ExampleEntity(event.transaction.from)
+  if (!player) {
+    player = new Player(event.transaction.from);
 
     // Entity fields can be set using simple assignments
-    entity.count = BigInt.fromI32(0)
+    player.id = event.params.player1;
+    player.address = event.params.player1;
+    player.gamesLost = BigInt.fromI32(0);
+    player.gamesWon = BigInt.fromI32(0);
+    player.gamesPlayed = BigInt.fromI32(0);
   }
 
-  // BigInt and BigDecimal math are supported
-  entity.count = entity.count + BigInt.fromI32(1)
-
-  // Entity fields can be set based on event parameters
-  entity.amount = event.params.amount
-  entity.player1 = event.params.player1
-
   // Entities can be written to the store with `.save()`
-  entity.save()
-
-  // Note: If a handler doesn't require existing field values, it is faster
-  // _not_ to load the entity from the store. Instead, create it fresh with
-  // `new Entity(...)`, set the fields that should be updated and save the
-  // entity back to the store. Fields that were not set or unset remain
-  // unchanged, allowing for partial updates to be applied.
-
-  // It is also possible to access smart contracts from mappings. For
-  // example, the contract that has emitted the event can be connected to
-  // with:
-  //
-  // let contract = Contract.bind(event.address)
-  //
-  // The following functions can then be called on this contract to access
-  // state variables and other data:
-  //
-  // - contract._qrngUint256(...)
-  // - contract.airnode(...)
-  // - contract.airnodeRrp(...)
-  // - contract.endpointIdUint256(...)
-  // - contract.expectingRequestWithIdToBeFulfilled(...)
-  // - contract.getMinePendingGame(...)
-  // - contract.owner(...)
-  // - contract.sponsorWallet(...)
-  // - contract.verifyMessage(...)
+  player.save();
 }
 
-export function handleGameJoin(event: GameJoin): void {}
+export function handleGameJoin(event: GameJoin): void {
+  let player = Player.load(event.params.player2);
 
-export function handleGameWon(event: GameWon): void {}
+  if (!player) {
+    player = new Player(event.params.player2);
 
-export function handleOwnershipTransferred(event: OwnershipTransferred): void {}
+    // Entity fields can be set using simple assignments
+    player.id = event.params.player2;
+    player.address = event.params.player2;
+    player.gamesLost = BigInt.fromI32(0);
+    player.gamesWon = BigInt.fromI32(0);
+    player.gamesPlayed = BigInt.fromI32(0);
+  }
+}
 
-export function handleRoll(event: Roll): void {}
+export function handleGameWon(event: GameWon): void {
+  // Entities can be loaded from the store using a string ID; this ID
+  // needs to be unique across all entities of the same type
+  let winner = Player.load(event.params.winner);
+  let loser = Player.load(event.params.loser);
+
+  // BigInt and BigDecimal math are supported
+  winner!.gamesPlayed = winner!.gamesPlayed.plus(BigInt.fromI32(1));
+  loser!.gamesPlayed = loser!.gamesPlayed.plus(BigInt.fromI32(1));
+
+  winner!.gamesWon = winner!.gamesWon.plus(BigInt.fromI32(1));
+  loser!.gamesLost = loser!.gamesLost.plus(BigInt.fromI32(1));
+
+  winner!.save();
+  loser!.save();
+}

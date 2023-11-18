@@ -1,12 +1,12 @@
 specVersion: 0.0.5
 schema:
-  file: ./schema.graphql
+  file: schema.graphql
 dataSources:
   - kind: ethereum
     name: dethroll
     network: sepolia
     source:
-      address: '0x1214d9A91E0901313ba333440c797bF64e8feCAD'
+      address: "0x1214d9A91E0901313ba333440c797bF64e8feCAD"
       abi: dethroll
       startBlock: 4717573
     mapping:
@@ -19,7 +19,7 @@ dataSources:
         - GameWon
       abis:
         - name: dethroll
-          file: ./abis/dethroll.json
+          file: dethroll/abis/dethroll.json
       eventHandlers:
         - event: GameCreated(uint256,address)
           handler: handleGameCreated
@@ -27,4 +27,4 @@ dataSources:
           handler: handleGameJoin
         - event: GameWon(bytes32,address,address,uint256)
           handler: handleGameWon
-      file: ./src/dethroll.ts
+      file: dethroll/dethroll.wasm
