@@ -16,10 +16,7 @@
         "name": "next"
       }
     ],
-    "types": [
-      "jest",
-      "node"
-    ]
+    "types": ["jest", "node"]
   },
   "include": [
     "**/*.ts",
@@ -29,7 +26,8 @@
     "../../apps/d-ethroll-dapp/.next/types/**/*.ts",
     "../../dist/apps/d-ethroll-dapp/.next/types/**/*.ts",
     "next-env.d.ts",
-    "../../apps/dethroll-dapp/.next/types/**/*.ts"
+    "../../apps/dethroll-dapp/.next/types/**/*.ts",
+    "tailwind.config.js"
   ],
   "exclude": [
     "node_modules",
