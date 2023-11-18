@@ -59,6 +59,7 @@ export class DiscordService implements OnModuleInit {
       this.client.login(this.configService.get('DISCORD_TOKEN'));
       this.registerSlashCommand();
       this.interactionReact();
+      this.registerEvents();
     } catch (error: any) {
       this.logger.error(error.message);
     }
@@ -376,8 +377,11 @@ export class DiscordService implements OnModuleInit {
   }
   registerEvents() {
     try {
-      const contract = getDETHContract();
-      contract.addListener('Roll', async (gameId, player, rolledNumber) => {
+      this.logger.verbose(`Registering events`);
+
+      const contract: any = getDETHContract();
+
+      contract.on('Roll', async (gameId, player, rolledNumber) => {
         console.log(gameId, player, rolledNumber);
         const game = await this.gameService.getGameById(gameId);
         if (!game) throw new BadRequestException('Could not find game!');
@@ -405,45 +409,43 @@ export class DiscordService implements OnModuleInit {
         );
       });
 
-      contract.addListener(
-        'GameWon',
-        async (gameId, winner, loser, wonAmount) => {
-          const game = await this.gameService.getGameById(gameId);
+      contract.on('GameWon', async (gameId, winner, loser, wonAmount) => {
+        const game = await this.gameService.getGameById(gameId);
 
-          if (!game) throw new BadRequestException('Could not find game!');
+        if (!game) throw new BadRequestException('Could not find game!');
 
-          const winnerData = await this.userService.getUserBySigWallet(winner);
+        const winnerData = await this.userService.getUserBySigWallet(winner);
 
-          if (!winnerData)
-            throw new BadRequestException('Winner could not be found');
+        if (!winnerData)
+          throw new BadRequestException('Winner could not be found');
 
-          const loserData = await this.userService.getUserBySigWallet(loser);
+        const loserAddr = game.player1 === winner ? game.player2 : game.player1;
 
-          if (!loserData)
-            throw new BadRequestException('Loser could not be found');
+        const loserData = await this.userService.getUserBySigWallet(loserAddr);
 
-          const channel = this.transformChannel(
-            await this.client.channels.fetch(game.chanelId)
-          );
+        if (!loserData)
+          throw new BadRequestException('Loser could not be found');
 
-          const threads = await channel.threads.fetch();
+        const channel = this.transformChannel(
+          await this.client.channels.fetch(game.chanelId)
+        );
 
-          const foundThread = threads.threads.find(
-            (t) => t.name === game.threadName
-          );
+        const threads = await channel.threads.fetch();
 
-          if (!foundThread)
-            throw new Error('Thread deleted or does not exist!');
+        const foundThread = threads.threads.find(
+          (t) => t.name === game.threadName
+        );
 
-          game.winner = winner;
+        if (!foundThread) throw new Error('Thread deleted or does not exist!');
 
-          await this.gameService.updateGame(game);
+        game.winner = winner;
 
-          await foundThread.send(
-            `User <@${winnerData.discordId}> has won agains <@${loserData.discordId}>! Total bet was ${wonAmount}`
-          );
-        }
-      );
+        await this.gameService.updateGame(game);
+
+        await foundThread.send(
+          `User <@${winnerData.discordId}> has won against <@${loserData.discordId}>! Total bet was ${wonAmount}`
+        );
+      });
     } catch (error) {
       this.logger.error(error);
     }

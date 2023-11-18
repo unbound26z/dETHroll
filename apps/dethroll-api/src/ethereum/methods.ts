@@ -10,10 +10,11 @@ export function getAsSigner(pk: string) {
 }
 
 export function getDETHContract(signer?: Signer) {
+  const sig = signer ?? getAsSigner(process.env.MNEMONIC);
   return new ethers.Contract(
     process.env.CONTRACT_ADDRESS!,
     dETHRollAbi.abi,
-    signer
+    sig
   ) as unknown as ContractContext;
 }
 
