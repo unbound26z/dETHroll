@@ -148,10 +148,10 @@ export class DiscordService implements OnModuleInit {
         }
         if (data.message.length > 200) {
           interaction.editReply(
-            'Transaction reverted! Please contact support!'
+            'Transaction reverted! Please contact support!⚠️'
           );
         } else {
-          interaction.editReply(data.message);
+          interaction.editReply(data.message + data.error ? '⚠️' : '');
         }
       } catch (error) {
         console.log(error);
@@ -205,6 +205,7 @@ export class DiscordService implements OnModuleInit {
   async initGameHandler(interaction: Interaction<CacheType>, options: any) {
     try {
       const { user } = interaction;
+
       const amount = options.get('bet');
 
       if (!amount) return { message: 'Bet amount not found!', error: true };
@@ -251,7 +252,7 @@ export class DiscordService implements OnModuleInit {
       });
 
       return {
-        message: `User <@${user.id}> has created dETHroll game for ${amount.value} dETH!`,
+        message: `User <@${user.id}> has created dETHroll game for ${amount.value} dETH! 🎰`,
         error: null,
       };
     } catch (error) {
@@ -320,7 +321,7 @@ export class DiscordService implements OnModuleInit {
 
       await thread.members.add(user.id);
 
-      await thread.send(`User <@${user.id}> joined game. Good luck!`);
+      await thread.send(`User <@${user.id}> joined game. Good luck! 🧬`);
       await joinGame(
         game.gameId,
         dbUser.signerWalletPubkey,
@@ -366,10 +367,8 @@ export class DiscordService implements OnModuleInit {
       ) {
         return { message: 'It is not your turn!', error: true };
       }
-
       await roll(userData.signerWalletPubkey, gameData.gameId);
-
-      return { message: `Successfull roll by <@${user.id}>!`, error: null };
+      return { message: `Successfull roll by <@${user.id}>! 🎲`, error: null };
     } catch (error) {
       console.log(error);
       return { message: error.message, error: true };

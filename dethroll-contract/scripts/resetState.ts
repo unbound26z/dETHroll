@@ -10,9 +10,11 @@ export async function main() {
 
   const tx = await contract
     .connect(sig)
-    .resetPlayer('0xB4915d6CeCBc0752ef7eA592a09962321612F9CB');
+    .resetPlayer('0xc41a10aE8b71F072Cd62D16a834eF2a6E9627326');
 
-  await tx.wait();
+  const receipts = await tx.wait();
+
+  console.log(receipts?.hash);
 }
 
 main().catch((err) => console.log(err));

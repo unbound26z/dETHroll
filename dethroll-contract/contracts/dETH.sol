@@ -83,9 +83,9 @@ contract DETHRoll is Ownable {
 
         uint256 currencyBalance = recalculateCurrencyAmount(amount);
 
-        Player memory player = players[sigWallet];
+        // Player memory player = players[sigWallet];
 
-        require(player.mainWallet == msg.sender, 'Invalid wallet provided!');
+        // require(player.mainWallet == msg.sender, 'Invalid wallet provided!');
 
         balances[sigWallet] = balances[sigWallet] + currencyBalance;
     }
