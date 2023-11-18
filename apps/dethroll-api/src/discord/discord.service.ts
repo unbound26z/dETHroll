@@ -5,6 +5,7 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import {
+  CacheType,
   Client,
   Events,
   Interaction,
@@ -80,10 +81,10 @@ export class DiscordService implements OnModuleInit {
                 new SlashCommandBuilder()
                   .setName('join_dethroll')
                   .setDescription('Join dETHroll game!')
-                  .addStringOption((option) =>
+                  .addUserOption((option) =>
                     option
-                      .setName('Oponent')
-                      .setDescription('Amount of dETH currency to bet')
+                      .setName('oponent')
+                      .setDescription('Oponent to play agains')
                       .setRequired(true)
                   ),
 
@@ -109,18 +110,24 @@ export class DiscordService implements OnModuleInit {
     }
   }
 
-  interactionReact() {
-    try {
-      this.client.on('interactionCreate', (interaction) => {
+  async interactionReact() {
+    this.client.on('interactionCreate', async (interaction) => {
+      try {
         if (!interaction.isCommand()) {
           throw new Error('Inetaction is not command!');
         }
 
         const command = interaction.command;
+        const options = interaction.options;
+
+        let message = '';
 
         switch (command.name) {
           case DETHRollCommands.InitDethroll: {
-            this.initGameHandler(interaction);
+            message = await this.initGameHandler(
+              interaction,
+              interaction.options.data
+            );
             break;
           }
           case DETHRollCommands.JoinGame: {
@@ -135,8 +142,9 @@ export class DiscordService implements OnModuleInit {
             throw new BadRequestException('Command not supported');
           }
         }
-      });
-    } catch (error) {}
+        interaction.reply(message);
+      } catch (error) {}
+    });
   }
 
   async getUserData(code: string, wallet: string) {
@@ -182,9 +190,15 @@ export class DiscordService implements OnModuleInit {
     }
   }
 
-  async initGameHandler(interaction: Interaction) {}
+  async initGameHandler(interaction: Interaction<CacheType>, options: any) {
+    const { user, guild } = interaction;
 
-  async joinGameHandler(interaction: Interaction) {}
+    const amount = options[0];
 
-  async rollHandler(interaction: Interaction) {}
+    return '10';
+  }
+
+  async joinGameHandler(interaction: Interaction<CacheType>) {}
+
+  async rollHandler(interaction: Interaction<CacheType>) {}
 }
