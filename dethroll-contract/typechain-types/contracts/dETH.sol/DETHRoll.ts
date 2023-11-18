@@ -124,7 +124,7 @@ export interface DETHRollInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "joinGame",
-    values: [AddressLike, BytesLike, BigNumberish, BytesLike, BytesLike]
+    values: [string, AddressLike, BytesLike, BigNumberish, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -137,7 +137,7 @@ export interface DETHRollInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "roll",
-    values: [BytesLike, BytesLike, BigNumberish, BytesLike, BytesLike]
+    values: [string, BytesLike, BigNumberish, BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setParameters",
@@ -232,7 +232,7 @@ export namespace GameCreatedEvent {
 
 export namespace GameJoinEvent {
   export type InputTuple = [
-    gameId: BytesLike,
+    gameId: string,
     amount: BigNumberish,
     player2: AddressLike,
     player1: AddressLike
@@ -257,7 +257,7 @@ export namespace GameJoinEvent {
 
 export namespace GameWonEvent {
   export type InputTuple = [
-    gameId: BytesLike,
+    gameId: string,
     winner: AddressLike,
     loser: AddressLike,
     wonAmount: BigNumberish
@@ -295,7 +295,7 @@ export namespace OwnershipTransferredEvent {
 
 export namespace RollEvent {
   export type InputTuple = [
-    gameId: BytesLike,
+    gameId: string,
     player: AddressLike,
     rolledNumber: BigNumberish
   ];
@@ -404,6 +404,7 @@ export interface DETHRoll extends BaseContract {
 
   joinGame: TypedContractMethod<
     [
+      gameId: string,
       oponent: AddressLike,
       _hashedMessage: BytesLike,
       _v: BigNumberish,
@@ -426,7 +427,7 @@ export interface DETHRoll extends BaseContract {
 
   roll: TypedContractMethod<
     [
-      gameId: BytesLike,
+      gameId: string,
       _hashedMessage: BytesLike,
       _v: BigNumberish,
       _r: BytesLike,
@@ -523,6 +524,7 @@ export interface DETHRoll extends BaseContract {
     nameOrSignature: "joinGame"
   ): TypedContractMethod<
     [
+      gameId: string,
       oponent: AddressLike,
       _hashedMessage: BytesLike,
       _v: BigNumberish,
@@ -549,7 +551,7 @@ export interface DETHRoll extends BaseContract {
     nameOrSignature: "roll"
   ): TypedContractMethod<
     [
-      gameId: BytesLike,
+      gameId: string,
       _hashedMessage: BytesLike,
       _v: BigNumberish,
       _r: BytesLike,
@@ -638,7 +640,7 @@ export interface DETHRoll extends BaseContract {
       GameCreatedEvent.OutputObject
     >;
 
-    "GameJoin(bytes32,uint256,address,address)": TypedContractEvent<
+    "GameJoin(string,uint256,address,address)": TypedContractEvent<
       GameJoinEvent.InputTuple,
       GameJoinEvent.OutputTuple,
       GameJoinEvent.OutputObject
@@ -649,7 +651,7 @@ export interface DETHRoll extends BaseContract {
       GameJoinEvent.OutputObject
     >;
 
-    "GameWon(bytes32,address,address,uint256)": TypedContractEvent<
+    "GameWon(string,address,address,uint256)": TypedContractEvent<
       GameWonEvent.InputTuple,
       GameWonEvent.OutputTuple,
       GameWonEvent.OutputObject
@@ -671,7 +673,7 @@ export interface DETHRoll extends BaseContract {
       OwnershipTransferredEvent.OutputObject
     >;
 
-    "Roll(bytes32,address,uint256)": TypedContractEvent<
+    "Roll(string,address,uint256)": TypedContractEvent<
       RollEvent.InputTuple,
       RollEvent.OutputTuple,
       RollEvent.OutputObject

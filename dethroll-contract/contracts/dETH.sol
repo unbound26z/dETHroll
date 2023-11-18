@@ -44,22 +44,22 @@ contract DETHRoll is RrpRequesterV0, Ownable {
     event GameCreated(uint256 amount, address player1);
 
     event GameJoin(
-        bytes32 gameId,
+        string gameId,
         uint256 amount,
         address player2,
         address player1
     );
 
-    event Roll(bytes32 gameId, address player, uint256 rolledNumber);
+    event Roll(string gameId, address player, uint256 rolledNumber);
 
     event GameWon(
-        bytes32 gameId,
+        string gameId,
         address winner,
         address loser,
         uint256 wonAmount
     );
 
-    mapping(bytes32 => Game) games;
+    mapping(string => Game) games;
 
     mapping(address => uint256) balances;
 
@@ -188,6 +188,7 @@ contract DETHRoll is RrpRequesterV0, Ownable {
     }
 
     function joinGame(
+        string memory gameId,
         address oponent,
         bytes32 _hashedMessage,
         uint8 _v,
@@ -201,10 +202,6 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         require(
             pendingGame.player1 != address(0),
             'Could not find pending game!'
-        );
-
-        bytes32 gameId = keccak256(
-            abi.encode(oponent, player2, block.timestamp)
         );
 
         pendingGame.player2 = player2;
@@ -236,7 +233,7 @@ contract DETHRoll is RrpRequesterV0, Ownable {
     }
 
     function roll(
-        bytes32 gameId,
+        string memory gameId,
         bytes32 _hashedMessage,
         uint8 _v,
         bytes32 _r,
