@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export { DETHRoll__factory } from "./DETHRoll__factory";
-export { DETH__factory } from "./DETH__factory";

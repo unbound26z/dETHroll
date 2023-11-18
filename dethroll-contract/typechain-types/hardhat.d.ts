@@ -50,10 +50,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.IERC20__factory>;
     getContractFactory(
-      name: "DETH",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.DETH__factory>;
-    getContractFactory(
       name: "DETHRoll",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DETHRoll__factory>;
@@ -108,11 +104,6 @@ declare module "hardhat/types/runtime" {
       signer?: ethers.Signer
     ): Promise<Contracts.IERC20>;
     getContractAt(
-      name: "DETH",
-      address: string | ethers.Addressable,
-      signer?: ethers.Signer
-    ): Promise<Contracts.DETH>;
-    getContractAt(
       name: "DETHRoll",
       address: string | ethers.Addressable,
       signer?: ethers.Signer
@@ -159,10 +150,6 @@ declare module "hardhat/types/runtime" {
       name: "IERC20",
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
-    deployContract(
-      name: "DETH",
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.DETH>;
     deployContract(
       name: "DETHRoll",
       signerOrOptions?: ethers.Signer | DeployContractOptions
@@ -217,11 +204,6 @@ declare module "hardhat/types/runtime" {
       args: any[],
       signerOrOptions?: ethers.Signer | DeployContractOptions
     ): Promise<Contracts.IERC20>;
-    deployContract(
-      name: "DETH",
-      args: any[],
-      signerOrOptions?: ethers.Signer | DeployContractOptions
-    ): Promise<Contracts.DETH>;
     deployContract(
       name: "DETHRoll",
       args: any[],

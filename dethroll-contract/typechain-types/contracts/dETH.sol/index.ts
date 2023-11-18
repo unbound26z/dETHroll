@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export type { DETHRoll } from "./DETHRoll";
-export type { DETH } from "./DETH";
