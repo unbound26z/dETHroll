@@ -62,6 +62,6 @@ export class UserService {
   }
 
   async getUserByDiscordId(discordId: string) {
-    await this.userRepository.getUserByDiscordId(discordId);
+    return await this.userRepository.getUserByDiscordId(discordId);
   }
 }

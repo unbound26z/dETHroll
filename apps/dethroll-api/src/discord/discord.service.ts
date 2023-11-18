@@ -22,6 +22,7 @@ import { UserService } from '../user/user.service';
 import { DETHRollCommands } from './discord.enum';
 import { v4 } from 'uuid';
 import { GameService } from '../game/game.service';
+import { initGame, joinGame } from '../ethereum/methods';
 @Injectable()
 export class DiscordService implements OnModuleInit {
   client: Client;
@@ -202,6 +203,15 @@ export class DiscordService implements OnModuleInit {
 
     const channelId = interaction.channelId;
 
+    const dbUser = await this.userService.getUserByDiscordId(user.id);
+
+    if (!dbUser)
+      throw new Error(
+        'Please link discord on: ' + this.configService.get('APP_URL')
+      );
+
+    await initGame(dbUser.signerWalletPrivateKey, amount);
+
     const channel = await this.client.channels.fetch(channelId);
     if (
       !channel.isTextBased() ||
@@ -241,6 +251,24 @@ export class DiscordService implements OnModuleInit {
       throw new BadRequestException(
         "Can't play dETHroll game against yourself!"
       );
+
+    const dbUser = await this.userService.getUserByDiscordId(user.id);
+
+    if (!dbUser)
+      throw new Error(
+        'Please link discord on: ' + this.configService.get('APP_URL')
+      );
+
+    const oponentData = await this.userService.getUserByDiscordId(
+      member.user.id
+    );
+
+    if (!oponentData) throw new Error('Oponent discord data not found!');
+
+    await joinGame(
+      dbUser.signerWalletPrivateKey,
+      oponentData.signerWalletPubkey
+    );
 
     const game = await this.gameService.getGameForOponen(member.user.id);
 
