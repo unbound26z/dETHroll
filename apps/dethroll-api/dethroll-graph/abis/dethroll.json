@@ -1,0 +1,372 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_airnodeRrp", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "player1",
+        "type": "address"
+      }
+    ],
+    "name": "GameCreated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "gameId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "player2",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "player1",
+        "type": "address"
+      }
+    ],
+    "name": "GameJoin",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "gameId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "winner",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "loser",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "wonAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "GameWon",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "previousOwner",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "newOwner",
+        "type": "address"
+      }
+    ],
+    "name": "OwnershipTransferred",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "bytes32",
+        "name": "gameId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "player",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "rolledNumber",
+        "type": "uint256"
+      }
+    ],
+    "name": "Roll",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "_qrngUint256",
+    "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "airnode",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "airnodeRrp",
+    "outputs": [
+      {
+        "internalType": "contract IAirnodeRrpV0",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "token", "type": "address" },
+      { "internalType": "uint256", "name": "amount", "type": "uint256" }
+    ],
+    "name": "depositErc20",
+    "outputs": [],
+    "stateMutability": "payable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "endpointIdUint256",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "name": "expectingRequestWithIdToBeFulfilled",
+    "outputs": [{ "internalType": "bool", "name": "", "type": "bool" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "requestId", "type": "bytes32" },
+      { "internalType": "bytes", "name": "data", "type": "bytes" }
+    ],
+    "name": "fulfillUint256",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "player", "type": "address" }
+    ],
+    "name": "getMinePendingGame",
+    "outputs": [
+      {
+        "components": [
+          { "internalType": "address", "name": "player1", "type": "address" },
+          { "internalType": "address", "name": "player2", "type": "address" },
+          {
+            "internalType": "uint256",
+            "name": "startTimestamp",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "lastRandomNumber",
+            "type": "uint256"
+          },
+          { "internalType": "uint256", "name": "betAmount", "type": "uint256" },
+          { "internalType": "bool", "name": "lastPlayer1", "type": "bool" },
+          {
+            "internalType": "uint256",
+            "name": "rollsCount",
+            "type": "uint256"
+          },
+          { "internalType": "address", "name": "winner", "type": "address" }
+        ],
+        "internalType": "struct DETHRoll.Game",
+        "name": "",
+        "type": "tuple"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "uint256", "name": "_betAmount", "type": "uint256" },
+      {
+        "internalType": "bytes32",
+        "name": "_hashedMessage",
+        "type": "bytes32"
+      },
+      { "internalType": "uint8", "name": "_v", "type": "uint8" },
+      { "internalType": "bytes32", "name": "_r", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "_s", "type": "bytes32" }
+    ],
+    "name": "initGame",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "oponent", "type": "address" },
+      {
+        "internalType": "bytes32",
+        "name": "_hashedMessage",
+        "type": "bytes32"
+      },
+      { "internalType": "uint8", "name": "_v", "type": "uint8" },
+      { "internalType": "bytes32", "name": "_r", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "_s", "type": "bytes32" }
+    ],
+    "name": "joinGame",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_mainWallet", "type": "address" },
+      { "internalType": "string", "name": "_discord", "type": "string" },
+      { "internalType": "address", "name": "_sigWallet", "type": "address" }
+    ],
+    "name": "register",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "renounceOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "gameId", "type": "bytes32" },
+      {
+        "internalType": "bytes32",
+        "name": "_hashedMessage",
+        "type": "bytes32"
+      },
+      { "internalType": "uint8", "name": "_v", "type": "uint8" },
+      { "internalType": "bytes32", "name": "_r", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "_s", "type": "bytes32" }
+    ],
+    "name": "roll",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_airnode", "type": "address" },
+      {
+        "internalType": "bytes32",
+        "name": "_endpointIdUint256",
+        "type": "bytes32"
+      },
+      { "internalType": "address", "name": "_sponsorWallet", "type": "address" }
+    ],
+    "name": "setParameters",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "sponsorWallet",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_hashedMessage",
+        "type": "bytes32"
+      },
+      { "internalType": "uint8", "name": "_v", "type": "uint8" },
+      { "internalType": "bytes32", "name": "_r", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "_s", "type": "bytes32" }
+    ],
+    "name": "terminatePendingGame",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "address", "name": "newOwner", "type": "address" }
+    ],
+    "name": "transferOwnership",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "_hashedMessage",
+        "type": "bytes32"
+      },
+      { "internalType": "uint8", "name": "_v", "type": "uint8" },
+      { "internalType": "bytes32", "name": "_r", "type": "bytes32" },
+      { "internalType": "bytes32", "name": "_s", "type": "bytes32" }
+    ],
+    "name": "verifyMessage",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "pure",
+    "type": "function"
+  },
+  { "stateMutability": "payable", "type": "receive" }
+]
