@@ -3,6 +3,8 @@
 /* eslint-disable */
 import type * as api3 from "./@api3";
 export type { api3 };
+import type * as chainlink from "./@chainlink";
+export type { chainlink };
 import type * as openzeppelin from "./@openzeppelin";
 export type { openzeppelin };
 import type * as contracts from "./contracts";
@@ -18,6 +20,10 @@ export type { IWithdrawalUtilsV0 } from "./@api3/airnode-protocol/contracts/rrp/
 export { IWithdrawalUtilsV0__factory } from "./factories/@api3/airnode-protocol/contracts/rrp/interfaces/IWithdrawalUtilsV0__factory";
 export type { RrpRequesterV0 } from "./@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0";
 export { RrpRequesterV0__factory } from "./factories/@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0__factory";
+export type { VRFCoordinatorV2Interface } from "./@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface";
+export { VRFCoordinatorV2Interface__factory } from "./factories/@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface__factory";
+export type { VRFConsumerBaseV2 } from "./@chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2";
+export { VRFConsumerBaseV2__factory } from "./factories/@chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2__factory";
 export type { Ownable } from "./@openzeppelin/contracts/access/Ownable";
 export { Ownable__factory } from "./factories/@openzeppelin/contracts/access/Ownable__factory";
 export type { ERC20 } from "./@openzeppelin/contracts/token/ERC20/ERC20";

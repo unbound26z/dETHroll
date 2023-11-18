@@ -1,6 +1,8 @@
 {
   "contract": "0xBD679C39e5547B54d03d5F2c01F856F373F064Cc",
   "airnode": "0x2ab9f26E18B64848cd349582ca3B55c2d06f507d",
+  "vrfCoordinator": "0x7a1BaC17Ccc5b313516C5E16fb24f7659aA5ebed",
+  "gweiKeyHash": "0x4b09e658ed251bcafeebbc69400383d49f344ace09b9576fe248bb02c003fe9f",
   "_endpointIdUint256": "0x94555f83f1addda23fdaa7c74f27ce2b764ed5cc430c66f5ff1bcf39d583da36",
   "sponsorWallet": "0x40B9f909f15c3f2682B833e445084b14f47B3315",
   "token": "0x5d00fab5f2F97C4D682C1053cDCAA59c2c37900D",

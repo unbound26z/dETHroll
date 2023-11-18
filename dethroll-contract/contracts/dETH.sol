@@ -2,11 +2,12 @@
 
 pragma solidity 0.8.19;
 
-import '@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol';
+import '@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol';
+import '@chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
-contract DETHRoll is RrpRequesterV0, Ownable {
+contract DETHRoll is Ownable, VRFConsumerBaseV2 {
     struct Player {
         string discord;
         address sigWallet;
@@ -14,17 +15,22 @@ contract DETHRoll is RrpRequesterV0, Ownable {
 
     address _owner;
 
+    uint256 private constant ROLL_IN_PROGRESS = 42;
+    uint32 callbackGasLimit = 40000;
+    uint32 numWords = 1;
+    uint16 requestConfirmations = 3;
+
+    bytes32 s_keyHash =
+        0xd729dc84e21ae57ffb6be0053bf2b0668aa2aaf300a2a7b2ddf7dc0bb6e875a8;
+
+    VRFCoordinatorV2Interface COORDINATOR;
+
     //One dETH will always be worth 9 USD
     uint256 constant dETHPrice = 9;
 
     mapping(address => Player) players;
 
     ERC20 currency;
-
-    address public airnode;
-    bytes32 public endpointIdUint256;
-    address public sponsorWallet;
-    uint256 public _qrngUint256;
 
     uint256 lastRandomNumber;
 
@@ -65,12 +71,57 @@ contract DETHRoll is RrpRequesterV0, Ownable {
 
     mapping(address => uint256) balances;
 
+    uint64 s_subscriptionId;
+
+    // map rollers to requestIds
+    mapping(uint256 => string) private s_rollers;
+    // map vrf results to rollers
+    mapping(string => uint256) private s_results;
+
     constructor(
-        address _airnodeRrp,
-        address _currency
-    ) RrpRequesterV0(_airnodeRrp) {
+        address _vrfCoordinator,
+        address _currency,
+        uint64 subscriptionId
+    ) VRFConsumerBaseV2(_vrfCoordinator) {
         _owner = msg.sender;
         currency = ERC20(_currency);
+        COORDINATOR = VRFCoordinatorV2Interface(_vrfCoordinator);
+        s_subscriptionId = subscriptionId;
+    }
+
+    function fulfillRandomWords(
+        uint256 requestId,
+        uint256[] memory randomWords
+    ) internal override {
+        uint256 d20Value = (randomWords[0] % 20) + 1;
+        s_results[s_rollers[requestId]] = d20Value;
+
+        string memory gameId = s_rollers[requestId];
+
+        Game memory game = games[gameId];
+
+        uint256 seed = game.lastRandomNumber == 0 ? 100 : game.lastRandomNumber;
+
+        uint256 randomNumber = (d20Value % seed) + 1;
+
+        address player = game.lastPlayer1 ? game.player1 : game.player2;
+
+        games[gameId].lastRandomNumber = randomNumber;
+        games[gameId].rollsCount += 1;
+
+        if (randomNumber == 1) {
+            games[gameId].winner = player;
+            emit GameWon(
+                gameId,
+                player,
+                games[gameId].lastPlayer1
+                    ? games[gameId].player1
+                    : games[gameId].player2,
+                game.betAmount * 2
+            );
+        }
+
+        emit Roll(gameId, player, randomNumber);
     }
 
     function register(
@@ -87,42 +138,6 @@ contract DETHRoll is RrpRequesterV0, Ownable {
             discord: _discord,
             sigWallet: _sigWallet
         });
-    }
-
-    function setParameters(
-        address _airnode,
-        bytes32 _endpointIdUint256,
-        address _sponsorWallet
-    ) public onlyOwner {
-        airnode = _airnode;
-        endpointIdUint256 = _endpointIdUint256;
-        sponsorWallet = _sponsorWallet;
-    }
-
-    function makeRequestUint256() private {
-        bytes32 requestId = airnodeRrp.makeFullRequest(
-            airnode,
-            endpointIdUint256,
-            address(this),
-            sponsorWallet,
-            address(this),
-            this.fulfillUint256.selector,
-            ''
-        );
-        expectingRequestWithIdToBeFulfilled[requestId] = true;
-    }
-
-    function fulfillUint256(
-        bytes32 requestId,
-        bytes calldata data
-    ) public onlyAirnodeRrp {
-        require(
-            expectingRequestWithIdToBeFulfilled[requestId],
-            'Request ID not known'
-        );
-        expectingRequestWithIdToBeFulfilled[requestId] = false;
-        uint256 qrngUint256 = abi.decode(data, (uint256));
-        lastRandomNumber = qrngUint256;
     }
 
     function depositErc20(uint256 amount) public payable {
@@ -242,7 +257,7 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         uint8 _v,
         bytes32 _r,
         bytes32 _s
-    ) public {
+    ) public returns (uint256 requestId) {
         address player = verifyMessage(_hashedMessage, _v, _r, _s);
 
         Game memory game = games[gameId];
@@ -261,28 +276,17 @@ contract DETHRoll is RrpRequesterV0, Ownable {
             require(player == game.player1, "Can't roll twice in row");
             games[gameId].lastPlayer1 = true;
         }
-        makeRequestUint256();
 
-        uint256 seed = game.lastRandomNumber == 0 ? 100 : game.lastRandomNumber;
+        requestId = COORDINATOR.requestRandomWords(
+            s_keyHash,
+            s_subscriptionId,
+            requestConfirmations,
+            callbackGasLimit,
+            numWords
+        );
 
-        uint256 randomNumber = (lastRandomNumber % seed) + 1;
-
-        games[gameId].lastRandomNumber = randomNumber;
-        games[gameId].rollsCount += 1;
-
-        if (randomNumber == 1) {
-            games[gameId].winner = player;
-            emit GameWon(
-                gameId,
-                player,
-                games[gameId].lastPlayer1
-                    ? games[gameId].player1
-                    : games[gameId].player2,
-                game.betAmount * 2
-            );
-        }
-
-        emit Roll(gameId, player, randomNumber);
+        s_rollers[requestId] = gameId;
+        s_results[gameId] = ROLL_IN_PROGRESS;
     }
 
     function terminatePendingGame(
@@ -316,7 +320,7 @@ contract DETHRoll is RrpRequesterV0, Ownable {
     }
 
     function getRandomNumber() public returns (uint256 seed) {
-        seed = (seed + block.timestamp + block.difficulty) % 100;
+        seed = (seed + block.timestamp + block.prevrandao) % 100;
         return seed;
     }
 }
