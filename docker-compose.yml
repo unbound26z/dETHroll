@@ -1,0 +1,51 @@
+version: '1.1'
+
+services:
+  api:
+    volumes:
+      - ./:/app
+    build: 
+      context: .
+      dockerfile: ./apps/dethroll-api/Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - dethroll_network
+    depends_on:
+      - db
+  db:
+    image: postgres:14.2-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    networks:
+      - dethroll_network
+    volumes:
+      - pg:/var/lib/postgresql/data
+  pgadmin:
+      image: dpage/pgadmin4:4.30
+      container_name: dethroll-pgadmin
+      environment:
+        PGADMIN_DEFAULT_EMAIL: dethroll@admin.com
+        PGADMIN_DEFAULT_PASSWORD: dethrolladmin
+      ports:
+        - '6400:80'
+      volumes:
+       - pgadmin:/var/lib/pgadmin
+      networks:
+        - dethroll_network
+      depends_on:
+        - db
+
+networks:
+  dethroll_network:
+    driver: bridge
+
+volumes:
+  pg:
+    driver: local
+  pgadmin:
+    driver: local
