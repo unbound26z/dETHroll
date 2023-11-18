@@ -58,10 +58,10 @@ export class UserService {
   }
 
   async getUserByWallet(walletAddress: string) {
-    await this.userRepository.getUserByWallet(walletAddress);
+    return await this.userRepository.getUserByWallet(walletAddress);
   }
 
   async getUserByDiscordId(discordId: string) {
-    await this.userRepository.getUserByDiscordId(discordId);
+    return await this.userRepository.getUserByDiscordId(discordId);
   }
 }

@@ -3,7 +3,13 @@ import { FC } from 'react';
 
 const InfoContent: FC<{}> = () => {
   return (
-    <div className="bg-gray-900 overflow-hidden grid grid-cols-3 pt-10">
+    <div
+      className="bg-cover overflow-hidden grid grid-cols-3 pt-10"
+      style={{
+        backgroundImage: `url(backgroundBlack.png)`,
+        height: `calc(100vh - 136px)`,
+      }}
+    >
       <div className="flex flex-col items-center">
         <h1 className="text-xl font-bold text-white">Origins</h1>
         <div className="m-auto text-white p-6 max-w-screen-2xl h-screen text-justify">
