@@ -1,18 +1,18 @@
 version: '1.1'
 
 services:
-  # api:
-  #   volumes:
-  #     - ./:/app
-  #   build: 
-  #     context: .
-  #     dockerfile: ./apps/dethroll-api/Dockerfile
-  #   ports:
-  #     - "3000:3000"
-  #   networks:
-  #     - dethroll_network
-  #   depends_on:
-  #     - db
+  api:
+    volumes:
+      - ./:/app
+    build: 
+      context: .
+      dockerfile: ./apps/dethroll-api/Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - dethroll_network
+    depends_on:
+      - db
   db:
     image: postgres:14.2-alpine
     ports:

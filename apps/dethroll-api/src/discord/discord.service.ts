@@ -13,6 +13,8 @@ import {
   REST,
   Routes,
   SlashCommandBuilder,
+  User as DiscordUser,
+  TextBasedChannel,
 } from 'discord.js';
 import axios from 'axios';
 import { CreateUserDto } from '../user/dto/user.dto';
@@ -34,7 +36,7 @@ export class DiscordService implements OnModuleInit {
       intents: [],
       partials: [Partials.GuildMember],
     });
-    this.rest = new REST();
+    this.rest = new REST().setToken(configService.get('DISCORD_TOKEN'));
   }
 
   onModuleInit() {
@@ -62,24 +64,21 @@ export class DiscordService implements OnModuleInit {
       (async () => {
         try {
           await this.rest.put(
-            Routes.applicationGuildCommands(
-              process.env.APPLICATION_ID!,
-              process.env.GUILD_ID!
-            ),
+            Routes.applicationCommands(process.env.DISCORD_CLIENT_ID!),
             {
               body: [
                 new SlashCommandBuilder()
-                  .setName('init_dethroll')
+                  .setName('init')
                   .setDescription('Initialize new dETHroll game!')
                   .addStringOption((option) =>
                     option
-                      .setName('dETH bet')
+                      .setName('bet')
                       .setDescription('Amount of dETH currency to bet')
                       .setRequired(true)
                   ),
 
                 new SlashCommandBuilder()
-                  .setName('join_dethroll')
+                  .setName('join')
                   .setDescription('Join dETHroll game!')
                   .addUserOption((option) =>
                     option
@@ -93,7 +92,7 @@ export class DiscordService implements OnModuleInit {
                   .setDescription('Roll dETHroll number!')
                   .addStringOption((option) =>
                     option
-                      .setName('Oponent')
+                      .setName('oponent')
                       .setDescription('Amount of dETH currency to bet')
                       .setRequired(true)
                   ),
@@ -120,9 +119,14 @@ export class DiscordService implements OnModuleInit {
         const command = interaction.command;
         const options = interaction.options;
 
+        console.log(options, 'OPTIONS');
+
         let message = '';
 
-        switch (command.name) {
+        const user = interaction.user;
+        const commandName = interaction.commandName;
+
+        switch (commandName) {
           case DETHRollCommands.InitDethroll: {
             message = await this.initGameHandler(
               interaction,
@@ -131,11 +135,11 @@ export class DiscordService implements OnModuleInit {
             break;
           }
           case DETHRollCommands.JoinGame: {
-            this.joinGameHandler(interaction);
+            message = await this.joinGameHandler(interaction);
             break;
           }
           case DETHRollCommands.Roll: {
-            this.rollHandler(interaction);
+            message = await this.rollHandler(interaction);
             break;
           }
           default: {
@@ -143,7 +147,9 @@ export class DiscordService implements OnModuleInit {
           }
         }
         interaction.reply(message);
-      } catch (error) {}
+      } catch (error) {
+        console.log(error);
+      }
     });
   }
 
@@ -192,13 +198,35 @@ export class DiscordService implements OnModuleInit {
 
   async initGameHandler(interaction: Interaction<CacheType>, options: any) {
     const { user, guild } = interaction;
-
     const amount = options[0];
 
-    return '10';
+    const channelId = interaction.channelId;
+
+    const channel = await this.client.channels.fetch(channelId);
+    if (
+      !channel.isTextBased() ||
+      channel.isDMBased() ||
+      channel.isThread() ||
+      channel.isThreadOnly() ||
+      channel.isVoiceBased()
+    ) {
+      throw new BadRequestException('Channel is not text based!');
+    }
+
+    const thread = await channel.threads.create({
+      name: 'majmuni',
+    });
+    await thread.members.add(user.id);
+    await thread.send('Waiting for oponent....');
+
+    return `User <@${user.id}> has created dETHroll game for ${amount} dETH!`;
   }
 
-  async joinGameHandler(interaction: Interaction<CacheType>) {}
+  async joinGameHandler(interaction: Interaction<CacheType>) {
+    return 'Joing game majmune';
+  }
 
-  async rollHandler(interaction: Interaction<CacheType>) {}
+  async rollHandler(interaction: Interaction<CacheType>) {
+    return 'Roll game majmune';
+  }
 }
