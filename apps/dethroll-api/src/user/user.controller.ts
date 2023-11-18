@@ -16,9 +16,9 @@ export class UserController {
     return this.userService.getAllUsers();
   }
 
-  @Get('/wallet/:id')
-  getUserByWallet(@Param('id') id: string) {
-    return this.userService.getUserByWallet(id);
+  @Get('/wallet/:address')
+  getUserByWallet(@Param('address') address: string) {
+    return this.userService.getUserByWallet(address);
   }
 
   @Get('/snowflake/:id')
