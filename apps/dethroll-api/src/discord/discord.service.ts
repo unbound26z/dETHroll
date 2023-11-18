@@ -62,24 +62,21 @@ export class DiscordService implements OnModuleInit {
       (async () => {
         try {
           await this.rest.put(
-            Routes.applicationGuildCommands(
-              process.env.APPLICATION_ID!,
-              process.env.GUILD_ID!
-            ),
+            Routes.applicationCommands(process.env.DISCORD_CLIENT_ID!),
             {
               body: [
                 new SlashCommandBuilder()
-                  .setName('init_dethroll')
+                  .setName('init')
                   .setDescription('Initialize new dETHroll game!')
                   .addStringOption((option) =>
                     option
-                      .setName('dETH bet')
+                      .setName('bet')
                       .setDescription('Amount of dETH currency to bet')
                       .setRequired(true)
                   ),
 
                 new SlashCommandBuilder()
-                  .setName('join_dethroll')
+                  .setName('join')
                   .setDescription('Join dETHroll game!')
                   .addUserOption((option) =>
                     option
@@ -93,7 +90,7 @@ export class DiscordService implements OnModuleInit {
                   .setDescription('Roll dETHroll number!')
                   .addStringOption((option) =>
                     option
-                      .setName('Oponent')
+                      .setName('oponent')
                       .setDescription('Amount of dETH currency to bet')
                       .setRequired(true)
                   ),

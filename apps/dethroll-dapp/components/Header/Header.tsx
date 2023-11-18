@@ -1,5 +1,6 @@
 'use client';
 import { getTrimmedPublicKey } from 'apps/dethroll-dapp/utils/utils';
+import axios from 'axios';
 import Link from 'next/link';
 import { FC, useEffect, useState } from 'react';
 
@@ -10,9 +11,22 @@ const Header: FC<{ home: boolean }> = ({ home }) => {
 
   useEffect(() => {
     if (window.ethereum) {
+      void checkIfLoggedIn();
+
       window.ethereum.on('accountsChanged', handleAccountChange);
     }
   }, []);
+
+  const checkIfLoggedIn = async () => {
+    const accounts = await window.ethereum.request({
+      method: 'eth_requestAccounts',
+    });
+
+    const userAddress = accounts[0];
+
+    setWalletAddress(userAddress);
+    setWalletConnected(true);
+  };
 
   const handleAccountChange = async (accounts: string[]) => {
     try {
@@ -42,6 +56,17 @@ const Header: FC<{ home: boolean }> = ({ home }) => {
     } catch (error: any) {
       console.log(error.message);
     }
+  };
+
+  const authorizeDiscord = async () => {
+    const {
+      data: { uri },
+    } = await axios.get(
+      `${process.env.NEXT_PUBLIC_API_URL}/discord/link/${walletAddress}`
+    );
+
+    window.open(uri, '_blank');
+    window.close();
   };
 
   return (
@@ -99,7 +124,10 @@ const Header: FC<{ home: boolean }> = ({ home }) => {
               : 'CONNECT WALLET'}
           </button>
           {walletConnected && (
-            <button className="border-solid border-2 rounded-xl px-2 border-white">
+            <button
+              className="border-solid border-2 rounded-xl px-2 border-white"
+              onClick={authorizeDiscord}
+            >
               CONNECT DISCORD
             </button>
           )}
