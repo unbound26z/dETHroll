@@ -13,15 +13,15 @@ import {
   REST,
   Routes,
   SlashCommandBuilder,
-  User as DiscordUser,
-  TextBasedChannel,
 } from 'discord.js';
 import axios from 'axios';
 import { CreateUserDto } from '../user/dto/user.dto';
-import { generateDiscordPfPUrl } from '../utils/helpers';
+import { extractUuid, generateDiscordPfPUrl } from '../utils/helpers';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../user/user.service';
 import { DETHRollCommands } from './discord.enum';
+import { v4 } from 'uuid';
+import { GameService } from '../game/game.service';
 @Injectable()
 export class DiscordService implements OnModuleInit {
   client: Client;
@@ -30,7 +30,8 @@ export class DiscordService implements OnModuleInit {
 
   constructor(
     private configService: ConfigService,
-    private userService: UserService
+    private userService: UserService,
+    private gameService: GameService
   ) {
     this.client = new Client({
       intents: [],
@@ -116,10 +117,7 @@ export class DiscordService implements OnModuleInit {
           throw new Error('Inetaction is not command!');
         }
 
-        const command = interaction.command;
         const options = interaction.options;
-
-        console.log(options, 'OPTIONS');
 
         let message = '';
 
@@ -130,12 +128,12 @@ export class DiscordService implements OnModuleInit {
           case DETHRollCommands.InitDethroll: {
             message = await this.initGameHandler(
               interaction,
-              interaction.options.data
+              interaction.options
             );
             break;
           }
           case DETHRollCommands.JoinGame: {
-            message = await this.joinGameHandler(interaction);
+            message = await this.joinGameHandler(interaction, options);
             break;
           }
           case DETHRollCommands.Roll: {
@@ -197,8 +195,10 @@ export class DiscordService implements OnModuleInit {
   }
 
   async initGameHandler(interaction: Interaction<CacheType>, options: any) {
-    const { user, guild } = interaction;
-    const amount = options[0];
+    const { user } = interaction;
+    const amount = options.get('bet');
+
+    if (!amount) throw new Error('Bet amount not found!');
 
     const channelId = interaction.channelId;
 
@@ -207,23 +207,53 @@ export class DiscordService implements OnModuleInit {
       !channel.isTextBased() ||
       channel.isDMBased() ||
       channel.isThread() ||
-      channel.isThreadOnly() ||
       channel.isVoiceBased()
     ) {
       throw new BadRequestException('Channel is not text based!');
     }
 
+    const gameId = v4();
+    const threadName = `${user.username}_${extractUuid(gameId)}`;
     const thread = await channel.threads.create({
-      name: 'majmuni',
+      name: threadName,
     });
     await thread.members.add(user.id);
-    await thread.send('Waiting for oponent....');
+    await thread.send('Waiting for oponent...');
+
+    await this.gameService.createGame({
+      betAmount: 10,
+      discordId: user.id,
+      gameId,
+      player: user.username,
+      threadId: thread.id,
+      threadName,
+    });
 
     return `User <@${user.id}> has created dETHroll game for ${amount} dETH!`;
   }
 
-  async joinGameHandler(interaction: Interaction<CacheType>) {
-    return 'Joing game majmune';
+  async joinGameHandler(interaction: Interaction<CacheType>, options: any) {
+    const member = options.get('oponent').member;
+    if (!member) throw new BadRequestException('Oponent not tagged!');
+    const { user } = interaction;
+
+    if (user.id == member.usrer.id)
+      throw new BadRequestException(
+        "Can't play dETHroll game against yourself!"
+      );
+
+    const game = await this.gameService.getGameForOponen(member.user.id);
+
+    if (!game)
+      throw new BadRequestException('Tagged user does not have created games!');
+
+    game.isPending = false;
+    game.player2 = user.username;
+    game.player2DiscordId = user.id;
+
+    await this.gameService.updateGame(game);
+
+    return `User <@${user.id}> has joined dETHroll game agains <@${member.user.id}>. Good luck!`;
   }
 
   async rollHandler(interaction: Interaction<CacheType>) {
