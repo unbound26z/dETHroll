@@ -45,3 +45,5 @@ Thumbs.db
 
 artifacts
 cache
+
+.env

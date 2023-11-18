@@ -6,7 +6,7 @@ import '@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
-contract dETH is RrpRequesterV0, Ownable {
+contract DETHRoll is RrpRequesterV0, Ownable {
     struct Player {
         string discord;
         address sigWallet;
@@ -40,6 +40,24 @@ contract dETH is RrpRequesterV0, Ownable {
         uint256 rollsCount;
         address winner;
     }
+
+    event GameCreated(uint256 amount, address player1);
+
+    event GameJoin(
+        bytes32 gameId,
+        uint256 amount,
+        address player2,
+        address player1
+    );
+
+    event Roll(bytes32 gameId, address player, uint256 rolledNumber);
+
+    event GameWon(
+        bytes32 gameId,
+        address winner,
+        address loser,
+        uint256 wonAmount
+    );
 
     mapping(bytes32 => Game) games;
 
@@ -106,20 +124,22 @@ contract dETH is RrpRequesterV0, Ownable {
 
         tokenContract.transferFrom(msg.sender, address(this), amount);
 
-        uint256 currencyBalance = recalculateCurrencyAmount();
+        uint256 currencyBalance = recalculateCurrencyAmount(amount);
 
         balances[msg.sender] = balances[msg.sender] + currencyBalance;
     }
 
     receive() external payable {
-        uint256 currencyBalance = recalculateCurrencyAmount();
+        uint256 currencyBalance = recalculateCurrencyAmount(msg.value);
 
         balances[msg.sender] = balances[msg.sender] + currencyBalance;
     }
 
-    function recalculateCurrencyAmount() private pure returns (uint256) {
+    function recalculateCurrencyAmount(
+        uint256 depositAmount
+    ) private pure returns (uint256) {
         //TODO: user oracle for fetching ETH/token prices
-        return 10;
+        return depositAmount / dETHPrice;
     }
 
     function initGame(
@@ -143,6 +163,8 @@ contract dETH is RrpRequesterV0, Ownable {
         );
 
         pendingGames[player1] = defaultGame;
+
+        emit GameCreated(_betAmount, player1);
     }
 
     function getMinePendingGame(
@@ -190,6 +212,13 @@ contract dETH is RrpRequesterV0, Ownable {
         pendingGames[oponent] = getDefaultGame();
 
         games[gameId] = pendingGame;
+
+        emit GameJoin(
+            gameId,
+            pendingGames[oponent].betAmount,
+            player2,
+            oponent
+        );
     }
 
     function getDefaultGame() private pure returns (Game memory) {
@@ -242,7 +271,17 @@ contract dETH is RrpRequesterV0, Ownable {
 
         if (randomNumber == 1) {
             games[gameId].winner = player;
+            emit GameWon(
+                gameId,
+                player,
+                games[gameId].lastPlayer1
+                    ? games[gameId].player1
+                    : games[gameId].player2,
+                game.betAmount * 2
+            );
         }
+
+        emit Roll(gameId, player, randomNumber);
     }
 
     function terminatePendingGame(

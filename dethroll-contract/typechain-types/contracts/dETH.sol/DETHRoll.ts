@@ -21,9 +21,9 @@ import type {
   TypedLogDescription,
   TypedListener,
   TypedContractMethod,
-} from "../common";
+} from "../../common";
 
-export declare namespace DETH {
+export declare namespace DETHRoll {
   export type GameStruct = {
     player1: AddressLike;
     player2: AddressLike;
@@ -56,7 +56,7 @@ export declare namespace DETH {
   };
 }
 
-export interface DETHInterface extends Interface {
+export interface DETHRollInterface extends Interface {
   getFunction(
     nameOrSignature:
       | "_qrngUint256"
@@ -315,11 +315,11 @@ export namespace RollEvent {
   export type LogDescription = TypedLogDescription<Event>;
 }
 
-export interface DETH extends BaseContract {
-  connect(runner?: ContractRunner | null): DETH;
+export interface DETHRoll extends BaseContract {
+  connect(runner?: ContractRunner | null): DETHRoll;
   waitForDeployment(): Promise<this>;
 
-  interface: DETHInterface;
+  interface: DETHRollInterface;
 
   queryFilter<TCEvent extends TypedContractEvent>(
     event: TCEvent,
@@ -386,7 +386,7 @@ export interface DETH extends BaseContract {
 
   getMinePendingGame: TypedContractMethod<
     [player: AddressLike],
-    [DETH.GameStructOutput],
+    [DETHRoll.GameStructOutput],
     "view"
   >;
 
@@ -503,7 +503,7 @@ export interface DETH extends BaseContract {
     nameOrSignature: "getMinePendingGame"
   ): TypedContractMethod<
     [player: AddressLike],
-    [DETH.GameStructOutput],
+    [DETHRoll.GameStructOutput],
     "view"
   >;
   getFunction(
