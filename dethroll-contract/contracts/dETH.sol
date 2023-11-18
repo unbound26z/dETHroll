@@ -19,6 +19,8 @@ contract DETHRoll is RrpRequesterV0, Ownable {
 
     mapping(address => Player) players;
 
+    ERC20 currency;
+
     address public airnode;
     bytes32 public endpointIdUint256;
     address public sponsorWallet;
@@ -63,8 +65,12 @@ contract DETHRoll is RrpRequesterV0, Ownable {
 
     mapping(address => uint256) balances;
 
-    constructor(address _airnodeRrp) RrpRequesterV0(_airnodeRrp) {
+    constructor(
+        address _airnodeRrp,
+        address _currency
+    ) RrpRequesterV0(_airnodeRrp) {
         _owner = msg.sender;
+        currency = ERC20(_currency);
     }
 
     function register(
@@ -119,18 +125,10 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         lastRandomNumber = qrngUint256;
     }
 
-    function depositErc20(address token, uint256 amount) public payable {
-        ERC20 tokenContract = ERC20(token);
-
-        tokenContract.transferFrom(msg.sender, address(this), amount);
+    function depositErc20(uint256 amount) public payable {
+        currency.transferFrom(msg.sender, address(this), amount);
 
         uint256 currencyBalance = recalculateCurrencyAmount(amount);
-
-        balances[msg.sender] = balances[msg.sender] + currencyBalance;
-    }
-
-    receive() external payable {
-        uint256 currencyBalance = recalculateCurrencyAmount(msg.value);
 
         balances[msg.sender] = balances[msg.sender] + currencyBalance;
     }
@@ -138,7 +136,6 @@ contract DETHRoll is RrpRequesterV0, Ownable {
     function recalculateCurrencyAmount(
         uint256 depositAmount
     ) private pure returns (uint256) {
-        //TODO: user oracle for fetching ETH/token prices
         return depositAmount / dETHPrice;
     }
 
@@ -156,6 +153,13 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         defaultGame.betAmount = _betAmount;
 
         Game memory existingPendingGame = pendingGames[player1];
+
+        uint256 balance = balances[player1];
+
+        require(
+            balance > _betAmount,
+            "You don't have enough balance for this game"
+        );
 
         require(
             existingPendingGame.player1 == address(0),
@@ -297,5 +301,22 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         );
 
         pendingGames[player] = getDefaultGame();
+    }
+
+    function getUserBalance(address user) public view returns (uint256) {
+        return balances[user];
+    }
+
+    function getPlayer(address player) public view returns (Player memory) {
+        return players[player];
+    }
+
+    function getGame(string memory gameId) public view returns (Game memory) {
+        return games[gameId];
+    }
+
+    function getRandomNumber() public returns (uint256 seed) {
+        seed = (seed + block.timestamp + block.difficulty) % 100;
+        return seed;
     }
 }

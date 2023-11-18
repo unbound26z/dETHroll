@@ -3,4 +3,3 @@
 /* eslint-disable */
 import type * as dEthSol from "./dETH.sol";
 export type { dEthSol };
-export type { Lock } from "./Lock";

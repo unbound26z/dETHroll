@@ -1,4 +1,5 @@
 import { ethers } from 'hardhat';
+import params from './parameters.sepolia.json';
 
 async function main() {
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
@@ -7,14 +8,12 @@ async function main() {
   const lockedAmount = ethers.parseEther('0.001');
   const dETH = await ethers.getContractFactory('DETHRoll');
 
-  const deployed = await dETH.deploy(
-    '0x2ab9f26E18B64848cd349582ca3B55c2d06f507d'
-  );
+  const deployed = await dETH.deploy(params.airnode, params.token);
 
   const finalized = await deployed.waitForDeployment();
 
   console.log(
-    `Lock with ${ethers.formatEther(
+    `dETHRoll with ${ethers.formatEther(
       lockedAmount
     )}ETH and unlock timestamp ${unlockTime} deployed to ${finalized.target}`
   );

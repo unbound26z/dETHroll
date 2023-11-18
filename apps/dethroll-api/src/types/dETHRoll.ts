@@ -76,7 +76,10 @@ export type DETHRollMethodNames =
   | 'endpointIdUint256'
   | 'expectingRequestWithIdToBeFulfilled'
   | 'fulfillUint256'
+  | 'getGame'
   | 'getMinePendingGame'
+  | 'getPlayer'
+  | 'getUserBalance'
   | 'initGame'
   | 'joinGame'
   | 'owner'
@@ -130,6 +133,12 @@ export interface GameResponse {
   6: BigNumber;
   winner: string;
   7: string;
+}
+export interface PlayerResponse {
+  discord: string;
+  0: string;
+  sigWallet: string;
+  1: string;
 }
 export interface DETHRoll {
   /**
@@ -213,12 +222,45 @@ export interface DETHRoll {
    * Constant: true
    * StateMutability: view
    * Type: function
+   * @param gameId Type: string, Indexed: false
+   */
+  getGame(
+    gameId: string,
+    overrides?: ContractCallOverrides
+  ): Promise<GameResponse>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
    * @param player Type: address, Indexed: false
    */
   getMinePendingGame(
     player: string,
     overrides?: ContractCallOverrides
   ): Promise<GameResponse>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param player Type: address, Indexed: false
+   */
+  getPlayer(
+    player: string,
+    overrides?: ContractCallOverrides
+  ): Promise<PlayerResponse>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param user Type: address, Indexed: false
+   */
+  getUserBalance(
+    user: string,
+    overrides?: ContractCallOverrides
+  ): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: false

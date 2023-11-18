@@ -2,4 +2,3 @@
 /* tslint:disable */
 /* eslint-disable */
 export * as dEthSol from "./dETH.sol";
-export { Lock__factory } from "./Lock__factory";

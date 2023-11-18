@@ -28,5 +28,3 @@ export type { IERC20 } from "./@openzeppelin/contracts/token/ERC20/IERC20";
 export { IERC20__factory } from "./factories/@openzeppelin/contracts/token/ERC20/IERC20__factory";
 export type { DETHRoll } from "./contracts/dETH.sol/DETHRoll";
 export { DETHRoll__factory } from "./factories/contracts/dETH.sol/DETHRoll__factory";
-export type { Lock } from "./contracts/Lock";
-export { Lock__factory } from "./factories/contracts/Lock__factory";

@@ -54,6 +54,13 @@ export declare namespace DETHRoll {
     rollsCount: bigint;
     winner: string;
   };
+
+  export type PlayerStruct = { discord: string; sigWallet: AddressLike };
+
+  export type PlayerStructOutput = [discord: string, sigWallet: string] & {
+    discord: string;
+    sigWallet: string;
+  };
 }
 
 export interface DETHRollInterface extends Interface {
@@ -66,7 +73,10 @@ export interface DETHRollInterface extends Interface {
       | "endpointIdUint256"
       | "expectingRequestWithIdToBeFulfilled"
       | "fulfillUint256"
+      | "getGame"
       | "getMinePendingGame"
+      | "getPlayer"
+      | "getUserBalance"
       | "initGame"
       | "joinGame"
       | "owner"
@@ -100,7 +110,7 @@ export interface DETHRollInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "depositErc20",
-    values: [AddressLike, BigNumberish]
+    values: [BigNumberish]
   ): string;
   encodeFunctionData(
     functionFragment: "endpointIdUint256",
@@ -114,8 +124,17 @@ export interface DETHRollInterface extends Interface {
     functionFragment: "fulfillUint256",
     values: [BytesLike, BytesLike]
   ): string;
+  encodeFunctionData(functionFragment: "getGame", values: [string]): string;
   encodeFunctionData(
     functionFragment: "getMinePendingGame",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPlayer",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getUserBalance",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -182,8 +201,14 @@ export interface DETHRollInterface extends Interface {
     functionFragment: "fulfillUint256",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "getGame", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getMinePendingGame",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(functionFragment: "getPlayer", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getUserBalance",
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "initGame", data: BytesLike): Result;
@@ -364,11 +389,7 @@ export interface DETHRoll extends BaseContract {
 
   airnodeRrp: TypedContractMethod<[], [string], "view">;
 
-  depositErc20: TypedContractMethod<
-    [token: AddressLike, amount: BigNumberish],
-    [void],
-    "payable"
-  >;
+  depositErc20: TypedContractMethod<[amount: BigNumberish], [void], "payable">;
 
   endpointIdUint256: TypedContractMethod<[], [string], "view">;
 
@@ -384,11 +405,25 @@ export interface DETHRoll extends BaseContract {
     "nonpayable"
   >;
 
+  getGame: TypedContractMethod<
+    [gameId: string],
+    [DETHRoll.GameStructOutput],
+    "view"
+  >;
+
   getMinePendingGame: TypedContractMethod<
     [player: AddressLike],
     [DETHRoll.GameStructOutput],
     "view"
   >;
+
+  getPlayer: TypedContractMethod<
+    [player: AddressLike],
+    [DETHRoll.PlayerStructOutput],
+    "view"
+  >;
+
+  getUserBalance: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
   initGame: TypedContractMethod<
     [
@@ -482,11 +517,7 @@ export interface DETHRoll extends BaseContract {
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "depositErc20"
-  ): TypedContractMethod<
-    [token: AddressLike, amount: BigNumberish],
-    [void],
-    "payable"
-  >;
+  ): TypedContractMethod<[amount: BigNumberish], [void], "payable">;
   getFunction(
     nameOrSignature: "endpointIdUint256"
   ): TypedContractMethod<[], [string], "view">;
@@ -501,12 +532,25 @@ export interface DETHRoll extends BaseContract {
     "nonpayable"
   >;
   getFunction(
+    nameOrSignature: "getGame"
+  ): TypedContractMethod<[gameId: string], [DETHRoll.GameStructOutput], "view">;
+  getFunction(
     nameOrSignature: "getMinePendingGame"
   ): TypedContractMethod<
     [player: AddressLike],
     [DETHRoll.GameStructOutput],
     "view"
   >;
+  getFunction(
+    nameOrSignature: "getPlayer"
+  ): TypedContractMethod<
+    [player: AddressLike],
+    [DETHRoll.PlayerStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getUserBalance"
+  ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "initGame"
   ): TypedContractMethod<
