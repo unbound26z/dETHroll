@@ -24,19 +24,26 @@ export class GameService {
         betAmount: createGameDto.betAmount,
         createdAt: new Date(),
         isPending: true,
+        winner: null,
         player1: createGameDto.player,
         player1DiscordId: createGameDto.discordId,
         threadId: createGameDto.threadId,
         threadName: createGameDto.threadName,
         player2DiscordId: null,
         player2: null,
+        chanelId: createGameDto.chanelId,
         updatedAt: new Date(),
       };
 
       return await this.gameRepo.save(game);
     } catch (error) {
+      console.log(error);
       throw new BadRequestException();
     }
+  }
+
+  async getGameByThreadId(threadId: string) {
+    return this.gameRepo.findOne({ where: { threadId: threadId } });
   }
 
   async getGameForOponen(discordId: string) {
@@ -47,5 +54,9 @@ export class GameService {
 
   async updateGame(game: Game) {
     return await this.gameRepo.save(game);
+  }
+
+  async getGameById(gameId: string) {
+    return this.gameRepo.findOne({ where: { gameId } });
   }
 }

@@ -58,7 +58,12 @@ export class UserService {
   }
 
   async getUserByWallet(walletAddress: string) {
-    await this.userRepository.getUserByWallet(walletAddress);
+    return await this.userRepository.getUserByWallet(walletAddress);
+  }
+  async getUserBySigWallet(wallet: string) {
+    return this.userRepository.findOne({
+      where: { signerWalletPubkey: wallet },
+    });
   }
 
   async getUserByDiscordId(discordId: string) {

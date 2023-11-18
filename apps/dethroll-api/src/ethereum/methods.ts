@@ -1,5 +1,5 @@
 import { ethers, Signer } from 'ethers';
-import { DETHRoll } from '../types/dETHRoll';
+import { ContractContext, DETHRoll } from '../types/dETHRoll';
 import dETHRollAbi from './abi/DETHRoll.json';
 import * as dotenv from 'dotenv';
 
@@ -9,12 +9,12 @@ export function getAsSigner(pk: string) {
   return new ethers.Wallet(pk, getProvider());
 }
 
-export function getDETHContract(signer: Signer) {
+export function getDETHContract(signer?: Signer) {
   return new ethers.Contract(
     process.env.CONTRACT_ADDRESS!,
     dETHRollAbi.abi,
     signer
-  ) as unknown as DETHRoll;
+  ) as unknown as ContractContext;
 }
 
 export function getProvider() {

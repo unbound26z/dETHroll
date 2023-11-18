@@ -8,7 +8,9 @@ export async function main() {
 
   const sig = (await ethers.getSigners())[0];
 
-  const tx = await contract.connect(sig).resetPlayer('');
+  const tx = await contract
+    .connect(sig)
+    .resetPlayer('0xB4915d6CeCBc0752ef7eA592a09962321612F9CB');
 
   await tx.wait();
 }

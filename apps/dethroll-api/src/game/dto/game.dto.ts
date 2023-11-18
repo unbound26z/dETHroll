@@ -5,4 +5,5 @@ export interface CreateGameDto {
   threadName: string;
   threadId: string;
   betAmount: number;
+  chanelId: string;
 }

@@ -13,6 +13,8 @@ export class Game {
   @Column()
   player1: string;
   @Column({ nullable: true })
+  @Column()
+  chanelId: string;
   player2: string | null;
   @Column({ default: true })
   isPending: boolean;
@@ -24,6 +26,8 @@ export class Game {
   betAmount: number;
   @Column()
   player1DiscordId: string;
+  @Column({ nullable: true })
+  winner: string | null;
   @Column({ nullable: true })
   player2DiscordId: string | null;
   @CreateDateColumn()
