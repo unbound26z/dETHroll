@@ -2,14 +2,13 @@
 
 pragma solidity 0.8.19;
 
-import '@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol';
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
 
-contract DETHRoll is RrpRequesterV0, Ownable {
+contract DETHRoll is Ownable {
     struct Player {
         string discord;
-        address sigWallet;
+        address mainWallet;
     }
 
     address _owner;
@@ -26,8 +25,6 @@ contract DETHRoll is RrpRequesterV0, Ownable {
     address public sponsorWallet;
     uint256 public _qrngUint256;
 
-    uint256 lastRandomNumber;
-
     mapping(bytes32 => bool) public expectingRequestWithIdToBeFulfilled;
 
     mapping(address => Game) pendingGames;
@@ -36,8 +33,8 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         address player1;
         address player2;
         uint256 startTimestamp;
-        uint256 lastRandomNumber;
         uint256 betAmount;
+        uint256 lastRandomNumber;
         bool lastPlayer1;
         uint256 rollsCount;
         address winner;
@@ -65,10 +62,7 @@ contract DETHRoll is RrpRequesterV0, Ownable {
 
     mapping(address => uint256) balances;
 
-    constructor(
-        address _airnodeRrp,
-        address _currency
-    ) RrpRequesterV0(_airnodeRrp) {
+    constructor(address _currency) {
         _owner = msg.sender;
         currency = ERC20(_currency);
     }
@@ -78,59 +72,22 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         string memory _discord,
         address _sigWallet
     ) public onlyOwner {
-        require(
-            players[_mainWallet].sigWallet == address(0),
-            'Player already registered'
-        );
-
-        players[_mainWallet] = Player({
+        players[_sigWallet] = Player({
             discord: _discord,
-            sigWallet: _sigWallet
+            mainWallet: _mainWallet
         });
     }
 
-    function setParameters(
-        address _airnode,
-        bytes32 _endpointIdUint256,
-        address _sponsorWallet
-    ) public onlyOwner {
-        airnode = _airnode;
-        endpointIdUint256 = _endpointIdUint256;
-        sponsorWallet = _sponsorWallet;
-    }
-
-    function makeRequestUint256() private {
-        bytes32 requestId = airnodeRrp.makeFullRequest(
-            airnode,
-            endpointIdUint256,
-            address(this),
-            sponsorWallet,
-            address(this),
-            this.fulfillUint256.selector,
-            ''
-        );
-        expectingRequestWithIdToBeFulfilled[requestId] = true;
-    }
-
-    function fulfillUint256(
-        bytes32 requestId,
-        bytes calldata data
-    ) public onlyAirnodeRrp {
-        require(
-            expectingRequestWithIdToBeFulfilled[requestId],
-            'Request ID not known'
-        );
-        expectingRequestWithIdToBeFulfilled[requestId] = false;
-        uint256 qrngUint256 = abi.decode(data, (uint256));
-        lastRandomNumber = qrngUint256;
-    }
-
-    function depositErc20(uint256 amount) public payable {
+    function depositErc20(uint256 amount, address sigWallet) public payable {
         currency.transferFrom(msg.sender, address(this), amount);
 
         uint256 currencyBalance = recalculateCurrencyAmount(amount);
 
-        balances[msg.sender] = balances[msg.sender] + currencyBalance;
+        Player memory player = players[sigWallet];
+
+        require(player.mainWallet == msg.sender, 'Invalid wallet provided!');
+
+        balances[sigWallet] = balances[sigWallet] + currencyBalance;
     }
 
     function recalculateCurrencyAmount(
@@ -139,15 +96,7 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         return depositAmount / dETHPrice;
     }
 
-    function initGame(
-        uint256 _betAmount,
-        bytes32 _hashedMessage,
-        uint8 _v,
-        bytes32 _r,
-        bytes32 _s
-    ) public {
-        address player1 = verifyMessage(_hashedMessage, _v, _r, _s);
-
+    function initGame(uint256 _betAmount, address player1) public onlyOwner {
         Game memory defaultGame = getDefaultGame();
         defaultGame.player1 = player1;
         defaultGame.betAmount = _betAmount;
@@ -177,30 +126,11 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         return pendingGames[player];
     }
 
-    function verifyMessage(
-        bytes32 _hashedMessage,
-        uint8 _v,
-        bytes32 _r,
-        bytes32 _s
-    ) public pure returns (address) {
-        bytes memory prefix = '\x19Ethereum Signed Message:\n32';
-        bytes32 prefixedHashMessage = keccak256(
-            abi.encodePacked(prefix, _hashedMessage)
-        );
-        address signer = ecrecover(prefixedHashMessage, _v, _r, _s);
-        return signer;
-    }
-
     function joinGame(
         string memory gameId,
         address oponent,
-        bytes32 _hashedMessage,
-        uint8 _v,
-        bytes32 _r,
-        bytes32 _s
-    ) public {
-        address player2 = verifyMessage(_hashedMessage, _v, _r, _s);
-
+        address player2
+    ) public onlyOwner {
         Game memory pendingGame = pendingGames[oponent];
 
         require(
@@ -236,15 +166,11 @@ contract DETHRoll is RrpRequesterV0, Ownable {
             });
     }
 
-    function roll(
-        string memory gameId,
-        bytes32 _hashedMessage,
-        uint8 _v,
-        bytes32 _r,
-        bytes32 _s
-    ) public {
-        address player = verifyMessage(_hashedMessage, _v, _r, _s);
+    function resetPlayer(address player) public onlyOwner {
+        pendingGames[player] = getDefaultGame();
+    }
 
+    function roll(string memory gameId, address player) public onlyOwner {
         Game memory game = games[gameId];
 
         require(game.winner == address(0), 'Game already resolved');
@@ -261,11 +187,11 @@ contract DETHRoll is RrpRequesterV0, Ownable {
             require(player == game.player1, "Can't roll twice in row");
             games[gameId].lastPlayer1 = true;
         }
-        makeRequestUint256();
+        uint256 generatedRandomNumber = getRandomNumber();
 
         uint256 seed = game.lastRandomNumber == 0 ? 100 : game.lastRandomNumber;
 
-        uint256 randomNumber = (lastRandomNumber % seed) + 1;
+        uint256 randomNumber = (generatedRandomNumber % seed) + 1;
 
         games[gameId].lastRandomNumber = randomNumber;
         games[gameId].rollsCount += 1;
@@ -285,14 +211,7 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         emit Roll(gameId, player, randomNumber);
     }
 
-    function terminatePendingGame(
-        bytes32 _hashedMessage,
-        uint8 _v,
-        bytes32 _r,
-        bytes32 _s
-    ) public {
-        address player = verifyMessage(_hashedMessage, _v, _r, _s);
-
+    function terminatePendingGame(address player) public onlyOwner {
         Game memory pendingGame = pendingGames[player];
 
         require(
@@ -307,6 +226,12 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         return balances[user];
     }
 
+    function getPendingGameForWallet(
+        address player
+    ) public view returns (Game memory) {
+        return pendingGames[player];
+    }
+
     function getPlayer(address player) public view returns (Player memory) {
         return players[player];
     }
@@ -315,8 +240,8 @@ contract DETHRoll is RrpRequesterV0, Ownable {
         return games[gameId];
     }
 
-    function getRandomNumber() public returns (uint256 seed) {
-        seed = (seed + block.timestamp + block.difficulty) % 100;
+    function getRandomNumber() public view returns (uint256 seed) {
+        seed = block.prevrandao;
         return seed;
     }
 }

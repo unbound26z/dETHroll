@@ -71,26 +71,25 @@ export type DETHRollMethodNames =
   | 'new'
   | '_qrngUint256'
   | 'airnode'
-  | 'airnodeRrp'
   | 'depositErc20'
   | 'endpointIdUint256'
   | 'expectingRequestWithIdToBeFulfilled'
-  | 'fulfillUint256'
   | 'getGame'
   | 'getMinePendingGame'
+  | 'getPendingGameForWallet'
   | 'getPlayer'
+  | 'getRandomNumber'
   | 'getUserBalance'
   | 'initGame'
   | 'joinGame'
   | 'owner'
   | 'register'
   | 'renounceOwnership'
+  | 'resetPlayer'
   | 'roll'
-  | 'setParameters'
   | 'sponsorWallet'
   | 'terminatePendingGame'
-  | 'transferOwnership'
-  | 'verifyMessage';
+  | 'transferOwnership';
 export interface GameCreatedEventEmittedResponse {
   amount: BigNumberish;
   player1: string;
@@ -123,9 +122,9 @@ export interface GameResponse {
   1: string;
   startTimestamp: BigNumber;
   2: BigNumber;
-  lastRandomNumber: BigNumber;
-  3: BigNumber;
   betAmount: BigNumber;
+  3: BigNumber;
+  lastRandomNumber: BigNumber;
   4: BigNumber;
   lastPlayer1: boolean;
   5: boolean;
@@ -137,7 +136,7 @@ export interface GameResponse {
 export interface PlayerResponse {
   discord: string;
   0: string;
-  sigWallet: string;
+  mainWallet: string;
   1: string;
 }
 export interface DETHRoll {
@@ -146,10 +145,10 @@ export interface DETHRoll {
    * Constant: false
    * StateMutability: nonpayable
    * Type: constructor
-   * @param _airnodeRrp Type: address, Indexed: false
+   * @param _currency Type: address, Indexed: false
    */
   'new'(
-    _airnodeRrp: string,
+    _currency: string,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**
@@ -167,23 +166,16 @@ export interface DETHRoll {
    */
   airnode(overrides?: ContractCallOverrides): Promise<string>;
   /**
-   * Payable: false
-   * Constant: true
-   * StateMutability: view
-   * Type: function
-   */
-  airnodeRrp(overrides?: ContractCallOverrides): Promise<string>;
-  /**
    * Payable: true
    * Constant: false
    * StateMutability: payable
    * Type: function
-   * @param token Type: address, Indexed: false
    * @param amount Type: uint256, Indexed: false
+   * @param sigWallet Type: address, Indexed: false
    */
   depositErc20(
-    token: string,
     amount: BigNumberish,
+    sigWallet: string,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**
@@ -204,19 +196,6 @@ export interface DETHRoll {
     parameter0: Arrayish,
     overrides?: ContractCallOverrides
   ): Promise<boolean>;
-  /**
-   * Payable: false
-   * Constant: false
-   * StateMutability: nonpayable
-   * Type: function
-   * @param requestId Type: bytes32, Indexed: false
-   * @param data Type: bytes, Indexed: false
-   */
-  fulfillUint256(
-    requestId: Arrayish,
-    data: Arrayish,
-    overrides?: ContractTransactionOverrides
-  ): Promise<ContractTransaction>;
   /**
    * Payable: false
    * Constant: true
@@ -246,10 +225,28 @@ export interface DETHRoll {
    * Type: function
    * @param player Type: address, Indexed: false
    */
+  getPendingGameForWallet(
+    player: string,
+    overrides?: ContractCallOverrides
+  ): Promise<GameResponse>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   * @param player Type: address, Indexed: false
+   */
   getPlayer(
     player: string,
     overrides?: ContractCallOverrides
   ): Promise<PlayerResponse>;
+  /**
+   * Payable: false
+   * Constant: true
+   * StateMutability: view
+   * Type: function
+   */
+  getRandomNumber(overrides?: ContractCallOverrides): Promise<BigNumber>;
   /**
    * Payable: false
    * Constant: true
@@ -267,17 +264,11 @@ export interface DETHRoll {
    * StateMutability: nonpayable
    * Type: function
    * @param _betAmount Type: uint256, Indexed: false
-   * @param _hashedMessage Type: bytes32, Indexed: false
-   * @param _v Type: uint8, Indexed: false
-   * @param _r Type: bytes32, Indexed: false
-   * @param _s Type: bytes32, Indexed: false
+   * @param player1 Type: address, Indexed: false
    */
   initGame(
     _betAmount: BigNumberish,
-    _hashedMessage: Arrayish,
-    _v: BigNumberish,
-    _r: Arrayish,
-    _s: Arrayish,
+    player1: string,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**
@@ -287,18 +278,12 @@ export interface DETHRoll {
    * Type: function
    * @param gameId Type: string, Indexed: false
    * @param oponent Type: address, Indexed: false
-   * @param _hashedMessage Type: bytes32, Indexed: false
-   * @param _v Type: uint8, Indexed: false
-   * @param _r Type: bytes32, Indexed: false
-   * @param _s Type: bytes32, Indexed: false
+   * @param player2 Type: address, Indexed: false
    */
   joinGame(
     gameId: string,
     oponent: string,
-    _hashedMessage: Arrayish,
-    _v: BigNumberish,
-    _r: Arrayish,
-    _s: Arrayish,
+    player2: string,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**
@@ -337,18 +322,10 @@ export interface DETHRoll {
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
-   * @param gameId Type: string, Indexed: false
-   * @param _hashedMessage Type: bytes32, Indexed: false
-   * @param _v Type: uint8, Indexed: false
-   * @param _r Type: bytes32, Indexed: false
-   * @param _s Type: bytes32, Indexed: false
+   * @param player Type: address, Indexed: false
    */
-  roll(
-    gameId: string,
-    _hashedMessage: Arrayish,
-    _v: BigNumberish,
-    _r: Arrayish,
-    _s: Arrayish,
+  resetPlayer(
+    player: string,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**
@@ -356,14 +333,12 @@ export interface DETHRoll {
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
-   * @param _airnode Type: address, Indexed: false
-   * @param _endpointIdUint256 Type: bytes32, Indexed: false
-   * @param _sponsorWallet Type: address, Indexed: false
+   * @param gameId Type: string, Indexed: false
+   * @param player Type: address, Indexed: false
    */
-  setParameters(
-    _airnode: string,
-    _endpointIdUint256: Arrayish,
-    _sponsorWallet: string,
+  roll(
+    gameId: string,
+    player: string,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**
@@ -378,16 +353,10 @@ export interface DETHRoll {
    * Constant: false
    * StateMutability: nonpayable
    * Type: function
-   * @param _hashedMessage Type: bytes32, Indexed: false
-   * @param _v Type: uint8, Indexed: false
-   * @param _r Type: bytes32, Indexed: false
-   * @param _s Type: bytes32, Indexed: false
+   * @param player Type: address, Indexed: false
    */
   terminatePendingGame(
-    _hashedMessage: Arrayish,
-    _v: BigNumberish,
-    _r: Arrayish,
-    _s: Arrayish,
+    player: string,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
   /**
@@ -401,21 +370,4 @@ export interface DETHRoll {
     newOwner: string,
     overrides?: ContractTransactionOverrides
   ): Promise<ContractTransaction>;
-  /**
-   * Payable: false
-   * Constant: true
-   * StateMutability: pure
-   * Type: function
-   * @param _hashedMessage Type: bytes32, Indexed: false
-   * @param _v Type: uint8, Indexed: false
-   * @param _r Type: bytes32, Indexed: false
-   * @param _s Type: bytes32, Indexed: false
-   */
-  verifyMessage(
-    _hashedMessage: Arrayish,
-    _v: BigNumberish,
-    _r: Arrayish,
-    _s: Arrayish,
-    overrides?: ContractCallOverrides
-  ): Promise<string>;
 }

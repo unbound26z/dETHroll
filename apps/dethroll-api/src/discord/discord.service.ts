@@ -210,7 +210,7 @@ export class DiscordService implements OnModuleInit {
         'Please link discord on: ' + this.configService.get('APP_URL')
       );
 
-    await initGame(dbUser.signerWalletPrivateKey, amount);
+    await initGame(dbUser.signerWalletPubkey, +amount.value);
 
     const channel = await this.client.channels.fetch(channelId);
     if (
@@ -239,7 +239,7 @@ export class DiscordService implements OnModuleInit {
       threadName,
     });
 
-    return `User <@${user.id}> has created dETHroll game for ${amount} dETH!`;
+    return `User <@${user.id}> has created dETHroll game for ${amount.value} dETH!`;
   }
 
   async joinGameHandler(interaction: Interaction<CacheType>, options: any) {
@@ -247,7 +247,7 @@ export class DiscordService implements OnModuleInit {
     if (!member) throw new BadRequestException('Oponent not tagged!');
     const { user } = interaction;
 
-    if (user.id == member.usrer.id)
+    if (user.id == member.user.id)
       throw new BadRequestException(
         "Can't play dETHroll game against yourself!"
       );
@@ -268,10 +268,31 @@ export class DiscordService implements OnModuleInit {
 
     if (!game)
       throw new BadRequestException('Tagged user does not have created games!');
+    const { channelId } = interaction;
 
+    const channel = await this.client.channels.fetch(channelId);
+
+    if (
+      !channel.isTextBased() ||
+      channel.isDMBased() ||
+      channel.isThread() ||
+      channel.isVoiceBased()
+    ) {
+      throw new BadRequestException('Channel is not text based!');
+    }
+
+    const threads = await channel.threads.fetch();
+
+    const thread = threads.threads.find((t) => t.name === game.threadName);
+
+    if (!thread) throw new BadRequestException('Thread not found');
+
+    await thread.members.add(user.id);
+
+    await thread.send(`User <@${user.id}> joined game. Good luck!`);
     await joinGame(
       game.gameId,
-      dbUser.signerWalletPrivateKey,
+      dbUser.signerWalletPubkey,
       oponentData.signerWalletPubkey
     );
 
@@ -281,7 +302,7 @@ export class DiscordService implements OnModuleInit {
 
     await this.gameService.updateGame(game);
 
-    return `User <@${user.id}> has joined dETHroll game agains <@${member.user.id}>. Good luck!`;
+    return `User <@${user.id}> has joined dETHroll game against <@${member.user.id}>. Good luck!`;
   }
 
   async rollHandler(interaction: Interaction<CacheType>) {

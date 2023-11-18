@@ -8,7 +8,7 @@ async function main() {
   const lockedAmount = ethers.parseEther('0.001');
   const dETH = await ethers.getContractFactory('DETHRoll');
 
-  const deployed = await dETH.deploy(params.airnode, params.token);
+  const deployed = await dETH.deploy(params.token);
 
   const finalized = await deployed.waitForDeployment();
 

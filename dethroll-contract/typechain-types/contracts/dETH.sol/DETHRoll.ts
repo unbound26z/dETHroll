@@ -28,8 +28,8 @@ export declare namespace DETHRoll {
     player1: AddressLike;
     player2: AddressLike;
     startTimestamp: BigNumberish;
-    lastRandomNumber: BigNumberish;
     betAmount: BigNumberish;
+    lastRandomNumber: BigNumberish;
     lastPlayer1: boolean;
     rollsCount: BigNumberish;
     winner: AddressLike;
@@ -39,8 +39,8 @@ export declare namespace DETHRoll {
     player1: string,
     player2: string,
     startTimestamp: bigint,
-    lastRandomNumber: bigint,
     betAmount: bigint,
+    lastRandomNumber: bigint,
     lastPlayer1: boolean,
     rollsCount: bigint,
     winner: string
@@ -48,18 +48,18 @@ export declare namespace DETHRoll {
     player1: string;
     player2: string;
     startTimestamp: bigint;
-    lastRandomNumber: bigint;
     betAmount: bigint;
+    lastRandomNumber: bigint;
     lastPlayer1: boolean;
     rollsCount: bigint;
     winner: string;
   };
 
-  export type PlayerStruct = { discord: string; sigWallet: AddressLike };
+  export type PlayerStruct = { discord: string; mainWallet: AddressLike };
 
-  export type PlayerStructOutput = [discord: string, sigWallet: string] & {
+  export type PlayerStructOutput = [discord: string, mainWallet: string] & {
     discord: string;
-    sigWallet: string;
+    mainWallet: string;
   };
 }
 
@@ -68,26 +68,25 @@ export interface DETHRollInterface extends Interface {
     nameOrSignature:
       | "_qrngUint256"
       | "airnode"
-      | "airnodeRrp"
       | "depositErc20"
       | "endpointIdUint256"
       | "expectingRequestWithIdToBeFulfilled"
-      | "fulfillUint256"
       | "getGame"
       | "getMinePendingGame"
+      | "getPendingGameForWallet"
       | "getPlayer"
+      | "getRandomNumber"
       | "getUserBalance"
       | "initGame"
       | "joinGame"
       | "owner"
       | "register"
       | "renounceOwnership"
+      | "resetPlayer"
       | "roll"
-      | "setParameters"
       | "sponsorWallet"
       | "terminatePendingGame"
       | "transferOwnership"
-      | "verifyMessage"
   ): FunctionFragment;
 
   getEvent(
@@ -105,12 +104,8 @@ export interface DETHRollInterface extends Interface {
   ): string;
   encodeFunctionData(functionFragment: "airnode", values?: undefined): string;
   encodeFunctionData(
-    functionFragment: "airnodeRrp",
-    values?: undefined
-  ): string;
-  encodeFunctionData(
     functionFragment: "depositErc20",
-    values: [BigNumberish]
+    values: [BigNumberish, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "endpointIdUint256",
@@ -120,13 +115,13 @@ export interface DETHRollInterface extends Interface {
     functionFragment: "expectingRequestWithIdToBeFulfilled",
     values: [BytesLike]
   ): string;
-  encodeFunctionData(
-    functionFragment: "fulfillUint256",
-    values: [BytesLike, BytesLike]
-  ): string;
   encodeFunctionData(functionFragment: "getGame", values: [string]): string;
   encodeFunctionData(
     functionFragment: "getMinePendingGame",
+    values: [AddressLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getPendingGameForWallet",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
@@ -134,16 +129,20 @@ export interface DETHRollInterface extends Interface {
     values: [AddressLike]
   ): string;
   encodeFunctionData(
+    functionFragment: "getRandomNumber",
+    values?: undefined
+  ): string;
+  encodeFunctionData(
     functionFragment: "getUserBalance",
     values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "initGame",
-    values: [BigNumberish, BytesLike, BigNumberish, BytesLike, BytesLike]
+    values: [BigNumberish, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "joinGame",
-    values: [string, AddressLike, BytesLike, BigNumberish, BytesLike, BytesLike]
+    values: [string, AddressLike, AddressLike]
   ): string;
   encodeFunctionData(functionFragment: "owner", values?: undefined): string;
   encodeFunctionData(
@@ -155,12 +154,12 @@ export interface DETHRollInterface extends Interface {
     values?: undefined
   ): string;
   encodeFunctionData(
-    functionFragment: "roll",
-    values: [string, BytesLike, BigNumberish, BytesLike, BytesLike]
+    functionFragment: "resetPlayer",
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
-    functionFragment: "setParameters",
-    values: [AddressLike, BytesLike, AddressLike]
+    functionFragment: "roll",
+    values: [string, AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "sponsorWallet",
@@ -168,15 +167,11 @@ export interface DETHRollInterface extends Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "terminatePendingGame",
-    values: [BytesLike, BigNumberish, BytesLike, BytesLike]
+    values: [AddressLike]
   ): string;
   encodeFunctionData(
     functionFragment: "transferOwnership",
     values: [AddressLike]
-  ): string;
-  encodeFunctionData(
-    functionFragment: "verifyMessage",
-    values: [BytesLike, BigNumberish, BytesLike, BytesLike]
   ): string;
 
   decodeFunctionResult(
@@ -184,7 +179,6 @@ export interface DETHRollInterface extends Interface {
     data: BytesLike
   ): Result;
   decodeFunctionResult(functionFragment: "airnode", data: BytesLike): Result;
-  decodeFunctionResult(functionFragment: "airnodeRrp", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "depositErc20",
     data: BytesLike
@@ -197,16 +191,20 @@ export interface DETHRollInterface extends Interface {
     functionFragment: "expectingRequestWithIdToBeFulfilled",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(
-    functionFragment: "fulfillUint256",
-    data: BytesLike
-  ): Result;
   decodeFunctionResult(functionFragment: "getGame", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "getMinePendingGame",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(
+    functionFragment: "getPendingGameForWallet",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "getPlayer", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getRandomNumber",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(
     functionFragment: "getUserBalance",
     data: BytesLike
@@ -219,11 +217,11 @@ export interface DETHRollInterface extends Interface {
     functionFragment: "renounceOwnership",
     data: BytesLike
   ): Result;
-  decodeFunctionResult(functionFragment: "roll", data: BytesLike): Result;
   decodeFunctionResult(
-    functionFragment: "setParameters",
+    functionFragment: "resetPlayer",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "roll", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "sponsorWallet",
     data: BytesLike
@@ -234,10 +232,6 @@ export interface DETHRollInterface extends Interface {
   ): Result;
   decodeFunctionResult(
     functionFragment: "transferOwnership",
-    data: BytesLike
-  ): Result;
-  decodeFunctionResult(
-    functionFragment: "verifyMessage",
     data: BytesLike
   ): Result;
 }
@@ -387,9 +381,11 @@ export interface DETHRoll extends BaseContract {
 
   airnode: TypedContractMethod<[], [string], "view">;
 
-  airnodeRrp: TypedContractMethod<[], [string], "view">;
-
-  depositErc20: TypedContractMethod<[amount: BigNumberish], [void], "payable">;
+  depositErc20: TypedContractMethod<
+    [amount: BigNumberish, sigWallet: AddressLike],
+    [void],
+    "payable"
+  >;
 
   endpointIdUint256: TypedContractMethod<[], [string], "view">;
 
@@ -397,12 +393,6 @@ export interface DETHRoll extends BaseContract {
     [arg0: BytesLike],
     [boolean],
     "view"
-  >;
-
-  fulfillUint256: TypedContractMethod<
-    [requestId: BytesLike, data: BytesLike],
-    [void],
-    "nonpayable"
   >;
 
   getGame: TypedContractMethod<
@@ -417,35 +407,30 @@ export interface DETHRoll extends BaseContract {
     "view"
   >;
 
+  getPendingGameForWallet: TypedContractMethod<
+    [player: AddressLike],
+    [DETHRoll.GameStructOutput],
+    "view"
+  >;
+
   getPlayer: TypedContractMethod<
     [player: AddressLike],
     [DETHRoll.PlayerStructOutput],
     "view"
   >;
 
+  getRandomNumber: TypedContractMethod<[], [bigint], "view">;
+
   getUserBalance: TypedContractMethod<[user: AddressLike], [bigint], "view">;
 
   initGame: TypedContractMethod<
-    [
-      _betAmount: BigNumberish,
-      _hashedMessage: BytesLike,
-      _v: BigNumberish,
-      _r: BytesLike,
-      _s: BytesLike
-    ],
+    [_betAmount: BigNumberish, player1: AddressLike],
     [void],
     "nonpayable"
   >;
 
   joinGame: TypedContractMethod<
-    [
-      gameId: string,
-      oponent: AddressLike,
-      _hashedMessage: BytesLike,
-      _v: BigNumberish,
-      _r: BytesLike,
-      _s: BytesLike
-    ],
+    [gameId: string, oponent: AddressLike, player2: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -460,24 +445,10 @@ export interface DETHRoll extends BaseContract {
 
   renounceOwnership: TypedContractMethod<[], [void], "nonpayable">;
 
-  roll: TypedContractMethod<
-    [
-      gameId: string,
-      _hashedMessage: BytesLike,
-      _v: BigNumberish,
-      _r: BytesLike,
-      _s: BytesLike
-    ],
-    [void],
-    "nonpayable"
-  >;
+  resetPlayer: TypedContractMethod<[player: AddressLike], [void], "nonpayable">;
 
-  setParameters: TypedContractMethod<
-    [
-      _airnode: AddressLike,
-      _endpointIdUint256: BytesLike,
-      _sponsorWallet: AddressLike
-    ],
+  roll: TypedContractMethod<
+    [gameId: string, player: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -485,7 +456,7 @@ export interface DETHRoll extends BaseContract {
   sponsorWallet: TypedContractMethod<[], [string], "view">;
 
   terminatePendingGame: TypedContractMethod<
-    [_hashedMessage: BytesLike, _v: BigNumberish, _r: BytesLike, _s: BytesLike],
+    [player: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -494,12 +465,6 @@ export interface DETHRoll extends BaseContract {
     [newOwner: AddressLike],
     [void],
     "nonpayable"
-  >;
-
-  verifyMessage: TypedContractMethod<
-    [_hashedMessage: BytesLike, _v: BigNumberish, _r: BytesLike, _s: BytesLike],
-    [string],
-    "view"
   >;
 
   getFunction<T extends ContractMethod = ContractMethod>(
@@ -513,11 +478,12 @@ export interface DETHRoll extends BaseContract {
     nameOrSignature: "airnode"
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
-    nameOrSignature: "airnodeRrp"
-  ): TypedContractMethod<[], [string], "view">;
-  getFunction(
     nameOrSignature: "depositErc20"
-  ): TypedContractMethod<[amount: BigNumberish], [void], "payable">;
+  ): TypedContractMethod<
+    [amount: BigNumberish, sigWallet: AddressLike],
+    [void],
+    "payable"
+  >;
   getFunction(
     nameOrSignature: "endpointIdUint256"
   ): TypedContractMethod<[], [string], "view">;
@@ -525,17 +491,17 @@ export interface DETHRoll extends BaseContract {
     nameOrSignature: "expectingRequestWithIdToBeFulfilled"
   ): TypedContractMethod<[arg0: BytesLike], [boolean], "view">;
   getFunction(
-    nameOrSignature: "fulfillUint256"
-  ): TypedContractMethod<
-    [requestId: BytesLike, data: BytesLike],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
     nameOrSignature: "getGame"
   ): TypedContractMethod<[gameId: string], [DETHRoll.GameStructOutput], "view">;
   getFunction(
     nameOrSignature: "getMinePendingGame"
+  ): TypedContractMethod<
+    [player: AddressLike],
+    [DETHRoll.GameStructOutput],
+    "view"
+  >;
+  getFunction(
+    nameOrSignature: "getPendingGameForWallet"
   ): TypedContractMethod<
     [player: AddressLike],
     [DETHRoll.GameStructOutput],
@@ -549,32 +515,22 @@ export interface DETHRoll extends BaseContract {
     "view"
   >;
   getFunction(
+    nameOrSignature: "getRandomNumber"
+  ): TypedContractMethod<[], [bigint], "view">;
+  getFunction(
     nameOrSignature: "getUserBalance"
   ): TypedContractMethod<[user: AddressLike], [bigint], "view">;
   getFunction(
     nameOrSignature: "initGame"
   ): TypedContractMethod<
-    [
-      _betAmount: BigNumberish,
-      _hashedMessage: BytesLike,
-      _v: BigNumberish,
-      _r: BytesLike,
-      _s: BytesLike
-    ],
+    [_betAmount: BigNumberish, player1: AddressLike],
     [void],
     "nonpayable"
   >;
   getFunction(
     nameOrSignature: "joinGame"
   ): TypedContractMethod<
-    [
-      gameId: string,
-      oponent: AddressLike,
-      _hashedMessage: BytesLike,
-      _v: BigNumberish,
-      _r: BytesLike,
-      _s: BytesLike
-    ],
+    [gameId: string, oponent: AddressLike, player2: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -592,26 +548,12 @@ export interface DETHRoll extends BaseContract {
     nameOrSignature: "renounceOwnership"
   ): TypedContractMethod<[], [void], "nonpayable">;
   getFunction(
+    nameOrSignature: "resetPlayer"
+  ): TypedContractMethod<[player: AddressLike], [void], "nonpayable">;
+  getFunction(
     nameOrSignature: "roll"
   ): TypedContractMethod<
-    [
-      gameId: string,
-      _hashedMessage: BytesLike,
-      _v: BigNumberish,
-      _r: BytesLike,
-      _s: BytesLike
-    ],
-    [void],
-    "nonpayable"
-  >;
-  getFunction(
-    nameOrSignature: "setParameters"
-  ): TypedContractMethod<
-    [
-      _airnode: AddressLike,
-      _endpointIdUint256: BytesLike,
-      _sponsorWallet: AddressLike
-    ],
+    [gameId: string, player: AddressLike],
     [void],
     "nonpayable"
   >;
@@ -620,21 +562,10 @@ export interface DETHRoll extends BaseContract {
   ): TypedContractMethod<[], [string], "view">;
   getFunction(
     nameOrSignature: "terminatePendingGame"
-  ): TypedContractMethod<
-    [_hashedMessage: BytesLike, _v: BigNumberish, _r: BytesLike, _s: BytesLike],
-    [void],
-    "nonpayable"
-  >;
+  ): TypedContractMethod<[player: AddressLike], [void], "nonpayable">;
   getFunction(
     nameOrSignature: "transferOwnership"
   ): TypedContractMethod<[newOwner: AddressLike], [void], "nonpayable">;
-  getFunction(
-    nameOrSignature: "verifyMessage"
-  ): TypedContractMethod<
-    [_hashedMessage: BytesLike, _v: BigNumberish, _r: BytesLike, _s: BytesLike],
-    [string],
-    "view"
-  >;
 
   getEvent(
     key: "GameCreated"
