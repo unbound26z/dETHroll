@@ -1,0 +1,7 @@
+type Player @entity {
+  id: Bytes!
+  address: Bytes!
+  gamesPlayed: BigInt!
+  gamesWon: BigInt!
+  gamesLost: BigInt!
+}

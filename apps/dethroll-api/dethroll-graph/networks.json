@@ -1,0 +1,8 @@
+{
+  "sepolia": {
+    "dethroll": {
+      "address": "0x1214d9A91E0901313ba333440c797bF64e8feCAD",
+      "startBlock": 4717573
+    }
+  }
+}
