@@ -4,8 +4,9 @@ pragma solidity 0.8.19;
 
 import '@openzeppelin/contracts/access/Ownable.sol';
 import '@openzeppelin/contracts/token/ERC20/ERC20.sol';
+import '@api3/airnode-protocol/contracts/rrp/requesters/RrpRequesterV0.sol';
 
-contract DETHRoll is Ownable {
+contract DETHRoll is Ownable, RrpRequesterV0 {
     struct Player {
         string discord;
         address mainWallet;
@@ -62,9 +63,45 @@ contract DETHRoll is Ownable {
 
     mapping(address => uint256) balances;
 
-    constructor(address _currency) {
+    constructor(address _airnode, address _currency) RrpRequesterV0(_airnode) {
         _owner = msg.sender;
         currency = ERC20(_currency);
+    }
+
+    function setRequestParameters(
+        address _airnode,
+        bytes32 _endpointIdUint256,
+        address _sponsorWallet
+    ) external {
+        airnode = _airnode;
+        endpointIdUint256 = _endpointIdUint256;
+        sponsorWallet = _sponsorWallet;
+    }
+
+    function makeRequestUint256() external {
+        bytes32 requestId = airnodeRrp.makeFullRequest(
+            airnode,
+            endpointIdUint256,
+            address(this),
+            sponsorWallet,
+            address(this),
+            this.fulfillUint256.selector,
+            ''
+        );
+        expectingRequestWithIdToBeFulfilled[requestId] = true;
+    }
+
+    function fulfillUint256(
+        bytes32 requestId,
+        bytes calldata data
+    ) external onlyAirnodeRrp {
+        require(
+            expectingRequestWithIdToBeFulfilled[requestId],
+            'Request ID not known'
+        );
+        expectingRequestWithIdToBeFulfilled[requestId] = false;
+        uint256 qrngUint256 = abi.decode(data, (uint256));
+        _qrngUint256 = qrngUint256;
     }
 
     function register(

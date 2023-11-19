@@ -420,11 +420,6 @@ export class DiscordService implements OnModuleInit {
 
         const loserAddr = game.player1 === winner ? game.player2 : game.player1;
 
-        const loserData = await this.userService.getUserBySigWallet(loserAddr);
-
-        if (!loserData)
-          throw new BadRequestException('Loser could not be found');
-
         const channel = this.transformChannel(
           await this.client.channels.fetch(game.chanelId)
         );
@@ -442,7 +437,7 @@ export class DiscordService implements OnModuleInit {
         await this.gameService.updateGame(game);
 
         await foundThread.send(
-          `User <@${winnerData.discordId}> has won against <@${loserData.discordId}>! Total bet was ${wonAmount}`
+          `User <@${winnerData.discordId}> has won! Total bet was ${wonAmount}`
         );
       });
     } catch (error) {

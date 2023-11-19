@@ -11,13 +11,31 @@ const config: HardhatUserConfig = {
     enabled: true,
   },
   etherscan: {
-    apiKey: 'T9BHGPE5EVCD8YREDKA8CWS4WWM4PE1DBC',
+    apiKey: process.env.ETHERSCAN_API_KEY!,
   },
   networks: {
     dev: {
       url: process.env.RPC_URL!,
       accounts: [process.env.MNEMONIC!],
       chainId: 11155111,
+      allowUnlimitedContractSize: true,
+    },
+    arbitrum: {
+      url: 'https://sepolia-rollup.arbitrum.io/rpc/',
+      chainId: 421614,
+      accounts: [process.env.MNEMONIC!],
+      allowUnlimitedContractSize: true,
+    },
+    scroll: {
+      url: 'https://rpc.ankr.com/scroll_sepolia_testnet	',
+      chainId: 534351,
+      accounts: [process.env.MNEMONIC!],
+      allowUnlimitedContractSize: true,
+    },
+    mantle: {
+      url: 'https://rpc.testnet.mantle.xyz',
+      chainId: 5001,
+      accounts: [process.env.MNEMONIC!],
       allowUnlimitedContractSize: true,
     },
   },
